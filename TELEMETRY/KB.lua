@@ -89,8 +89,6 @@ telemetry.tmp2    = TelemetryValue:new('Tmp2', 'Tmp2')
 telemetry.tmp1    = TelemetryValue:new('Tmp1', 'Tmp1')
 
 
-
-
 local menu = {}
 menu.currentMenu = 0 -- 0 will display selected screen, 1 will display main menu
 menu.currentItem = 1 -- main menu last selected item
@@ -106,20 +104,6 @@ local data = {}
   data.showBattType = false
   data.battTypeCalculated = false
 
---init Timer
-local oldTime={0,0,0,0,0,0}
-local Time={0,0,0,0,0,0}
-
---init var for v.speed Calc
-local Vspeed = 0.0
-local prevAlt = 0.0
-
---intit Battery and consume
-local totalbatteryComsum = 0.0
-local HVlipoDetected = 0 
-local battpercent = 0
-local batttype = 0
-
 
 local goodIteams=0
 local AraySize= 200--set the Size of the Ring resistance Array 
@@ -127,39 +111,11 @@ local AraySize= 200--set the Size of the Ring resistance Array
 --init other
 local effizient=0.0
 local gps_hori_Distance=0.0
-local lastsaynbattpercent=100
 local rxpercent = 0
 local firsttime=0
 local radioSettings = getGeneralSettings()
 local DisplayTimer=0
 
-
-
-
-
---------------------------------------------------------------------------------
--- function Reset Variables
--------------------------------------------------------------------------------
-local function ResetVar() 
-  data.cellCount = 0
-  data.cellVoltage = 0
-  data.maxVoltage = 0
-
-  Time={0,0,0,0,0,0}
-  Vspeed = 0.0
-  prevAlt = 0.0
-  totalbatteryComsum = 0.0
-  battpercent = 0
-  ArrayIteam=0 
-  effizient=0.0
-  gps_hori_Distance=0.0
-  lastsaynbattpercent=100
-  cellCount = 0
-  firsttime=1
-  radioSettings = getGeneralSettings()
-  data.lonHome=nil
-  data.latHome=nil
-end
   
   
 --###############################################################
@@ -193,33 +149,9 @@ local function drawYScrollBar(screenHeight, yScrollPos)
 end
 
 
-
---###############################################################
--- Draw a filled circle
---###############################################################
-local function drawCircle(xCenter, yCenter, radius)
-  local y, x
-  for y=-radius, radius do
-    for x=-radius, radius do
-        if(x*x+y*y <= radius*radius) then
-            lcd.drawPoint(xCenter+x, yCenter+y)
-        end
-    end
-  end
-end
-
-
 -- ###############################################################
 -- Helper method to draw a one pixel rounded corner rectangle
 -- ###############################################################
-local function drawFilledRoundedRectangle(x,y, width, height)
-  lcd.drawPoint(x,y);
-  lcd.drawPoint(x,y+height-1);
-  lcd.drawPoint(x+width-1,y);
-  lcd.drawPoint(x+width-1,y+height-1);
-  lcd.drawFilledRectangle(x, y, width, height)
-end
-
 local function drawFilledRoundedRectangleScrolled(x,y, width, height)
   lcd.drawPoint(x,y - yScrollPossition);
   lcd.drawPoint(x,y+height-1 - yScrollPossition);
@@ -378,45 +310,6 @@ local function CalculateHeadingOrientation()
     elseif telemetry.heading.value <  292.5 then data.headingOrt="W"     
     elseif telemetry.heading.value <  337.5 then data.headingOrt="NW"    
     elseif telemetry.heading.value <= 360.0 then data.headingOrt="N"    
-  end
-end
-
-
-
--- ###############################################################
--- Display horizontal RSSI
--- ###############################################################
-local function DrawHorizontalRssi()
-  local rssiBarX = 2
-  local rssiBarY = 61
-  local oneBarWidth = 3
-  local bars = math.ceil(telemetry.rssi.value/10)
-
-  lcd.drawText(rssiBarX, rssiBarY - 9, telemetry.rssi.value, SMLSIZE) 
-  for i=1,bars do
-    lcd.drawFilledRectangle(rssiBarX + (oneBarWidth * (i-1)),rssiBarY - i, oneBarWidth - 1, 3 + i, SOLID)
-  end
-  for i=bars,10 do
-    lcd.drawFilledRectangle(rssiBarX + (oneBarWidth * (i-1)), rssiBarY, oneBarWidth - 1, 3, SOLID)
-  end
-end 
-
-
--- ###############################################################
--- Display vertical RSSI
--- ###############################################################
-local function DrawVerticalRssi()
-  local rssiBarX = 107
-  local rssiBarY = 8
-  local oneBarHeight = 2
-  local rssiBarWidth = 20
-  local maxBars = 14
-  local bars = math.ceil(maxBars * telemetry.rssi.value/100)
-  if( telemetry.rssi.value < 85 ) then
-    lcd.drawText(rssiBarX + maxBars-bars, rssiBarY + (oneBarHeight + 1)*(maxBars+1-bars)-7, telemetry.rssi.value .. "db", SMLSIZE) 
-  end
-  for i=maxBars + 1 - bars,maxBars do
-    lcd.drawFilledRectangle(rssiBarX + i,rssiBarY + (oneBarHeight+1)*i, rssiBarWidth - i, (oneBarHeight), SOLID)
   end
 end
 
@@ -650,7 +543,7 @@ local function DrawFlightModeChar(x, y, mode, blink)
   else
     lcd.drawText(x, y, string.sub(mode,1,1), MIDSIZE)
   end
-  drawFilledRoundedRectangle(x-3, y-2, 14, 15)
+  drawFilledRoundedRectangleScrolled(x-3, y-2, 14, 15)
 end
 
 
@@ -660,7 +553,7 @@ end
 --###############################################################
 local function DrawRescueMode(x, y)
   drawShape(x+1, y+12, parashoot, 0)
-  drawFilledRoundedRectangle(x, y, 15, 15)
+  drawFilledRoundedRectangleScrolled(x, y, 15, 15)
 end
 
 
@@ -671,7 +564,7 @@ local function DrawAllTelemetryValues()
     drawLineScrolled(0, index*rowHeight + rowHeight - 1, screenWidth, index*rowHeight + rowHeight - 1, SOLID, FORCE, screen.yScrollPosition)
     drawTextScrolled(5, index*rowHeight + 1, globalTelemetryMap[index].label, SMLSIZE, screen.yScrollPosition)
     if globalTelemetryMap[index].value ~= nil  and type(globalTelemetryMap[index].value) ~= "table"  then
-      drawTextScrolled(screenWidth - 5, index*rowHeight + 1, globalTelemetryMap[index].value, SMLSIZE + RIGHT, screen.yScrollPosition)
+      drawTextScrolled(screenWidth - 5, index*rowHeight + 1, scale(globalTelemetryMap[index].value, 2), SMLSIZE + RIGHT, screen.yScrollPosition)
     elseif globalTelemetryMap[index].value ~= nil  and type(globalTelemetryMap[index].value) == "table" and globalTelemetryMap[index].value["lat"] ~= nil and globalTelemetryMap[index].value["lon"] ~= nil  then
       drawTextScrolled(screenWidth - 5, index*rowHeight + 1, globalTelemetryMap[index].value["lat"] .. ", " .. globalTelemetryMap[index].value["lon"], SMLSIZE + RIGHT, screen.yScrollPosition)
     else
@@ -923,6 +816,8 @@ local function backgroundwork()
   CalculateBatteryTypeAndStatus()
   CalculateHeadingOrientation()
   CalculateGpsData()
+
+  collectgarbage()
 end
 
 
@@ -937,6 +832,7 @@ local function run(event)
 
   MainDraw(filteredEvent)
 
+  collectgarbage()
 end
 
 --------------------------------------------------------------------------------
