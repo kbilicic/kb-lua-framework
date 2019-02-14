@@ -521,12 +521,6 @@ end
 -- ###############################################################
 -- shapes / icons
 -- ###############################################################
-local homeShape = {
-  { 0, -5, -4,  4},
-  {-4,  4,  0,  2},
-  { 0,  2,  4,  4},
-  { 4,  4,  0, -5}
-}
 
 local homeShape2 = {
   { 0, -6, -5,  0},
@@ -536,20 +530,6 @@ local homeShape2 = {
   { 2,  6,  2, 0},
   { 2,  0,  5, 0},
   { 5,  0,  0, -6}
-}
-
-local radarShape2 = {
-  {-3, 3, 0, -3},
-  {-2, 3, 0, -2},
-  { 2, 3, 0, -2},
-  { 3, 3, 0, -3}
-}
-
-local radarShape1 = {
-  {-4, 5, 0, -4},
-  {-3, 5, 0, -3},
-  {3, 5, 0, -3},
-  {4, 5, 0, -4}
 }
 
 local mountainShape = {
@@ -748,10 +728,6 @@ end
 -- Draw screen 1
 -- ###############################################################  
 function screen1(event)
-  --lcd.drawText(40, 8,  round(data.A4,2) .. "V", SMLSIZE) 
-  --lcd.drawText(40, 15, round(data.alt) .. " m (alt)", SMLSIZE) 
-  --lcd.drawText(40, 22, round(data.spd,1).." kt/s", SMLSIZE) 
-  --lcd.drawText(40, 29, round(data.current,1).." A", SMLSIZE) 
   if type(telemetry.gps.value) == "table" then
     lcd.drawText(30, 44, round(telemetry.gps.value["lat"], 4) .. " N ", 0) 
     lcd.drawText(30, 54, round(telemetry.gps.value["lon"], 4) .. " E ", 0) 
@@ -942,12 +918,6 @@ local function backgroundwork()
 
   -- get new values
   RefreshTelemetryValues()
-  --print("#globalTelemetryMap: " .. #globalTelemetryMap)
-  --print( globalTelemetryMap[7].label .. ": " .. globalTelemetryMap[7].value)
-  
-  --print( telemetry[1].label .. ": " .. telemetry[1].value)
-  --print( telemetry[2].label .. ": " .. telemetry[2].value)
-  --print( telemetry[3].label .. ": " .. telemetry[3].value)
   -- calculations
   CalculateGpsLock()
   CalculateBatteryTypeAndStatus()
