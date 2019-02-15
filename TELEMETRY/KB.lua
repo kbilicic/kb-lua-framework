@@ -1,7 +1,13 @@
+SCRIPT_HOME = "/SCRIPTS/TELEMETRY/KB"
+
+local helper = assert(loadScript(SCRIPT_HOME.."/basics.lua"))()
+local widgets = assert(loadScript(SCRIPT_HOME.."/widgets.luac"))()
+
+
 --###############################################################
 -- TelemtryValue class
 --###############################################################
-local getValue = getValue --faster 
+--local getValue = getValue --faster 
 local globalTelemetryMap = {}
 TelemetryValue = { id = -1 }
 function TelemetryValue.getTelemetryId(name)
@@ -104,95 +110,30 @@ local data = {}
   data.showBattType = false
   data.battTypeCalculated = false
 
-
-local goodIteams=0
-local AraySize= 200--set the Size of the Ring resistance Array 
-
---init other
-local effizient=0.0
 local gps_hori_Distance=0.0
-local rxpercent = 0
-local firsttime=0
-local radioSettings = getGeneralSettings()
-local DisplayTimer=0
-
-  
-  
---###############################################################
--- function round
---############################################################### 
-local function round(num, idp)
-  local temp = 10^(idp or 0)
-
-  if num >= 0 then 
-    return math.floor(num * temp + 0.5) / temp
-  else
-    return math.ceil(num * temp - 0.5) / temp 
-  end
-end
+--local radioSettings = getGeneralSettings()
 
 
-
-
-
-local function drawLineScrolled(x,y,x2,y2,pattern, flags, yScrollPos)
-  lcd.drawLine(x, y - yScrollPos, x2, y2 - yScrollPos, pattern, flags)
-end
-
-local function drawTextScrolled(x,y,text, options, yScrollPos)
-  lcd.drawText(x, y - yScrollPos, text, options)
-end
 
 local function drawYScrollBar(screenHeight, yScrollPos)
   local yScrollMax = screenHeight - lcdHeight + titleBarHeight
-  lcd.drawFilledRectangle(screenWidth-scrollBarWidth, titleBarHeight + round((yScrollPos / yScrollMax) * (lcdHeight-scrollBarHeight-titleBarHeight)), scrollBarWidth, scrollBarHeight, SOLID)
+  lcd.drawFilledRectangle(screenWidth-scrollBarWidth, titleBarHeight + helper.round((yScrollPos / yScrollMax) * (lcdHeight-scrollBarHeight-titleBarHeight)), scrollBarWidth, scrollBarHeight, SOLID)
+  yScrollMax = nil
 end
 
 
 -- ###############################################################
 -- Helper method to draw a one pixel rounded corner rectangle
 -- ###############################################################
-local function drawFilledRoundedRectangleScrolled(x,y, width, height)
-  lcd.drawPoint(x,y - yScrollPossition);
-  lcd.drawPoint(x,y+height-1 - yScrollPossition);
-  lcd.drawPoint(x+width-1,y - yScrollPossition);
-  lcd.drawPoint(x+width-1,y+height-1 - yScrollPossition);
-  lcd.drawFilledRectangle(x, y - yScrollPossition, width, height)
+local function drawFilledRoundedRectangleScrolled(x,y, width, height, yScrollPos)
+  lcd.drawPoint(x,y - yScrollPos);
+  lcd.drawPoint(x,y+height-1 - yScrollPos);
+  lcd.drawPoint(x+width-1,y - yScrollPos);
+  lcd.drawPoint(x+width-1,y+height-1 - yScrollPos);
+  lcd.drawFilledRectangle(x, y - yScrollPos, width, height)
 end
 
 
--- ###############################################################
--- Helper method to draw a shape
--- Shape is an array of lines
--- line is an array of 4 numbers that represent two coordinates (start and end point for the line)
--- ###############################################################
-local function drawShape(x, y, shape, rotation)
-  sinShape = math.sin(rotation)
-  cosShape = math.cos(rotation)
-  for index, point in pairs(shape) do
-    lcd.drawLine(
-      x + math.floor(point[1] * cosShape - point[2] * sinShape + 0.5),
-      y + math.floor(point[1] * sinShape + point[2] * cosShape + 0.5),
-      x + math.floor(point[3] * cosShape - point[4] * sinShape + 0.5),
-      y + math.floor(point[3] * sinShape + point[4] * cosShape + 0.5),
-      SOLID, FORCE
-    )
-  end
-end
-
-local function drawShape2(x, y, shape, rotation, scale)
-  sinShape = math.sin(rotation)
-  cosShape = math.cos(rotation)
-  for index, point in pairs(shape) do
-    lcd.drawLine(
-      x + scale * math.floor(point[1] * cosShape - point[2] * sinShape + 0.5),
-      y + scale * math.floor(point[1] * sinShape + point[2] * cosShape + 0.5),
-      x + scale * math.floor(point[3] * cosShape - point[4] * sinShape + 0.5),
-      y + scale * math.floor(point[3] * sinShape + point[4] * cosShape + 0.5),
-      SOLID, FORCE
-    )
-  end
-end
 
 local function drawShape2Scrolled(x, y, shape, rotation, scale)
   sinShape = math.sin(rotation)
@@ -226,7 +167,7 @@ end
 local function CalculateGpsLock() 
   if telemetry.tmp2.value ~= nil and telemetry.tmp2.value > 1000 then
     data.satcount = telemetry.tmp2.value % 1000
-    data.gpslock = round((telemetry.tmp2.value - data.satcount) / 1000)
+    data.gpslock = helper.round((telemetry.tmp2.value - data.satcount) / 1000)
   elseif telemetry.tmp2.value ~= nil and telemetry.tmp2.value > 0 then
     data.satcount = telemetry.tmp2.value
   else
@@ -255,7 +196,15 @@ local function CalculateGpsData()
           math.cos(math.rad(telemetry.gps.value["lat"])) * math.cos(math.rad(data.latHome)) *
           math.sin(dlon / 2) * math.sin(dlon / 2))
       local c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-      gps_hori_Distance = round(radius * c)
+      gps_hori_Distance = helper.round(radius * c)
+      sin = nil
+      cos = nil
+      radius = nil
+      dlat = nil
+      dlon = nil
+      a = nil
+      c = nil
+      collectgarbage()
     end      
   end
 end
@@ -289,9 +238,9 @@ local function CalculateBatteryTypeAndStatus()
   end
 
   if not data.cellCount == nil then
-    data.cellVoltage = round(telemetry.battsum.value / data.cellCount, 2)
+    data.cellVoltage = helper.round(telemetry.battsum.value / data.cellCount, 2)
   end
-  data.batteryPercent = round(100 * (telemetry.battsum.value - data.minVoltage) / (data.maxVoltage - data.minVoltage), 2)
+  data.batteryPercent = helper.round(100 * (telemetry.battsum.value - data.minVoltage) / (data.maxVoltage - data.minVoltage), 2)
 end
 
 
@@ -322,12 +271,12 @@ end
 local function DrawVerticalRssi2(rssiBarX, rssiBarY, oneBarHeight, minBarWidth, maxBars, curvePower)
   local bars = math.ceil(maxBars * telemetry.rssi.value/100)
   if( telemetry.rssi.value < 85 ) then
-    local offset = round(math.pow(bars,curvePower) / 10) -- exponential offset
+    local offset = helper.round(math.pow(bars,curvePower) / 10) -- exponential offset
     lcd.drawText(rssiBarX + 20 - offset, rssiBarY + (oneBarHeight + 1)*(maxBars+1-bars)-7, telemetry.rssi.value .. "db", SMLSIZE) 
   end
   local rightX = -1
   for i=maxBars + 1 - bars,maxBars do
-    local offset = round(math.pow(maxBars-i,curvePower) / 10) -- exponential offset
+    local offset = helper.round(math.pow(maxBars-i,curvePower) / 10) -- exponential offset
     local leftX = rssiBarX + 20 - offset
     local barWidth = minBarWidth + offset
     
@@ -340,6 +289,7 @@ local function DrawVerticalRssi2(rssiBarX, rssiBarY, oneBarHeight, minBarWidth, 
     end
     lcd.drawFilledRectangle(leftX, rssiBarY + (oneBarHeight+1)*i, barWidth, oneBarHeight, SOLID)
   end
+  bars = nil
 end
 
 
@@ -351,13 +301,13 @@ local function DrawBatteryLevel(battBarX, battBarY, barWidth, battBarMax)
   lcd.drawRectangle(battBarX, battBarY, barWidth, battBarMax + 2)
   lcd.drawFilledRectangle(battBarX + 4, battBarY - 2, barWidth-8 , 2)
 
-  local battBarHeight = round(battBarMax * data.batteryPercent / 100);
+  local battBarHeight = helper.round(battBarMax * data.batteryPercent / 100);
   if data.batteryPercent > 99.9 then
     lcd.drawText(battBarX + 2, battBarMax + battBarY + 2 - battBarHeight, "FULL", SMLSIZE)
   elseif data.batteryPercent > 20 and data.batteryPercent ~= nil then
-    lcd.drawText(battBarX + 2, battBarMax + battBarY + 2 - battBarHeight, round(data.batteryPercent).."%", SMLSIZE)
+    lcd.drawText(battBarX + 2, battBarMax + battBarY + 2 - battBarHeight, helper.round(data.batteryPercent).."%", SMLSIZE)
   elseif data.batteryPercent ~= nil then
-    lcd.drawText(battBarX + 2, battBarY + battBarMax - 6 - battBarHeight, round(data.batteryPercent).."%", SMLSIZE)
+    lcd.drawText(battBarX + 2, battBarY + battBarMax - 6 - battBarHeight, helper.round(data.batteryPercent).."%", SMLSIZE)
   end
   
   if data.showBattType == true then
@@ -375,7 +325,7 @@ local function DrawTitleBar()
   lcd.drawFilledRectangle(0, 0, screenWidth , 9, ERASE)
 
   lcd.drawText(2, 1,  data.cellCount .. "S", SMLSIZE)
-  lcd.drawText(lcd.getLastRightPos() + 3, 1,  round(telemetry.battsum.value,1) .. "V", SMLSIZE)
+  lcd.drawText(lcd.getLastRightPos() + 3, 1,  helper.round(telemetry.battsum.value,1) .. "V", SMLSIZE)
 
   if data.cellVoltage ~= nil and data.cellVoltage > 0 then
     lcd.drawText(lcd.getLastRightPos() + 3, 1,  data.cellVoltage .. "V", SMLSIZE)
@@ -410,102 +360,40 @@ end
 
 
 
-
--- ###############################################################
--- shapes / icons
--- ###############################################################
-
-local homeShape2 = {
-  { 0, -6, -5,  0},
-  {-5,  0,  -2,  0},
-  {-2,  0,  -2,  6},
-  { -2,  6,  2,  6},
-  { 2,  6,  2, 0},
-  { 2,  0,  5, 0},
-  { 5,  0,  0, -6}
-}
-
-local mountainShape = {
-  {-4, 0, -2, -4},
-  {-2, -4, -1, -3},
-  {-1, -3, 2, -9},
-  {2, -9, 4, -6},
-  {2,-4, 6,-7},
-  {6,-7, 9,0},
-  {2,0, -2, -4}
-}
-
-local satelliteDish = {
-  -- disk
-  {2,-8,1,-11},
-  {1,-11,1,-15},
-  {1,-15,2,-16},
-  {2,-16,3,-17},
-  {3,-17,4,-18},
-  {4,-18,5,-19},
-  {5,-19,6,-19},
-  {6,-19,7,-18},
-  {7,-18,8,-18},
-  {8,-18,9,-17},
-  {9,-17,10,-17},
-  {10,-17,11,-16},
-  {16,-11,17,-9},
-  {17,-9,17,-5},
-  {17,-5,16,-4},
-  {16,-4,14,-3},
-  {14,-3,12,-3},
-  {12,-3,11,-2},
-  {11,-2,6,-4},
-  {6,-4,2,-8},
-  {16,-4,10,-5},
-  {10,-5,6,-7},
-  {6,-7,4,-11},
-  {4,-11,3,-16},
-  {8,-2,7,-2},
-  --base
-  {3,-1,14,-1},
-  {3,0,14,0},
-  -- reciever
-  {7,-14,13,-14},
-  {8,-10,13,-14},
-  {12,-8,13,-14},
-  {13,-13,14,-13},
-  {14,-13,14,-14},
-  {14,-14,13,-14},
-  {13,-14,13,-13},
-  {13,-15,12,-15}
-}
-
-local parashoot = {
-  {6,0,12,-6},
-  {12,-6,11,-9},
-  {11,-9,10,-10},
-  {10,-10,6,-11},
-  {6,-11,2,-10},
-  {2,-10,1,-9},
-  {1,-9,0,-6},
-  {0,-6,6,0},
-  {0,-6,12,-6},
-  {6,0,4,-6},
-  {6,0,8,-6}
-}
-
-
-
 --###############################################################
 -- Draw a mountain shape and altitude in meters
 --###############################################################
 local function DrawDistanceAndHeading(x, y, value, measure)
-  drawShape(x, y, homeShape2, math.rad(telemetry.heading.value))
+  local homeShape2 = {
+    { 0, -6, -5,  0},
+    {-5,  0,  -2,  0},
+    {-2,  0,  -2,  6},
+    { -2,  6,  2,  6},
+    { 2,  6,  2, 0},
+    { 2,  0,  5, 0},
+    { 5,  0,  0, -6}
+  }
+  helper.drawShape(x, y, homeShape2, math.rad(telemetry.heading.value))
   lcd.drawText(x+8, y-5, value .. measure, MIDSIZE)
+  homeShape2 = nil
 end
 
 --###############################################################
 -- Draw a mountain shape and altitude in meters
 --###############################################################
 local function DrawAltitude(x, y, alt, measure)
-  drawShape(x, y + 10, mountainShape, 0)
+  local mountainShape = {
+    {-4, 0, -2, -4},
+    {-2, -4, -1, -3},
+    {-1, -3, 2, -9},
+    {2, -9, 4, -6},
+    {2,-4, 6,-7},
+    {6,-7, 9,0},
+    {2,0, -2, -4}
+  }
+  helper.drawShape(x, y + 10, mountainShape, 0)
   lcd.drawText(x + 11, y, alt .. measure, MIDSIZE)
+  mountainShape = nil
 end
 
 
@@ -516,12 +404,55 @@ end
 -- when a 2D or 3D fix is established, satellite number stops to blink
 --###############################################################
 local function DrawGpsFix()
-  drawShape(28, 35, satelliteDish, 0)
+  local satelliteDish = {
+    -- disk
+    {2,-8,1,-11},
+    {1,-11,1,-15},
+    {1,-15,2,-16},
+    {2,-16,3,-17},
+    {3,-17,4,-18},
+    {4,-18,5,-19},
+    {5,-19,6,-19},
+    {6,-19,7,-18},
+    {7,-18,8,-18},
+    {8,-18,9,-17},
+    {9,-17,10,-17},
+    {10,-17,11,-16},
+    {16,-11,17,-9},
+    {17,-9,17,-5},
+    {17,-5,16,-4},
+    {16,-4,14,-3},
+    {14,-3,12,-3},
+    {12,-3,11,-2},
+    {11,-2,6,-4},
+    {6,-4,2,-8},
+    {16,-4,10,-5},
+    {10,-5,6,-7},
+    {6,-7,4,-11},
+    {4,-11,3,-16},
+    {8,-2,7,-2},
+    --base
+    {3,-1,14,-1},
+    {3,0,14,0},
+    -- reciever
+    {7,-14,13,-14},
+    {8,-10,13,-14},
+    {12,-8,13,-14},
+    {13,-13,14,-13},
+    {14,-13,14,-14},
+    {14,-14,13,-14},
+    {13,-14,13,-13},
+    {13,-15,12,-15}
+  }
+
+  helper.drawShape(28, 35, satelliteDish, 0)
   if data.gpslock > 1 then
     lcd.drawText(43, 15, data.satcount, SMLSIZE)
   else
     lcd.drawText(43, 15, data.satcount, SMLSIZE + BLINK)
   end
+
+  satelliteDish = nil
 end
 
 
@@ -538,12 +469,14 @@ end
 -- Draw flight MODE initial character (black background)
 --###############################################################
 local function DrawFlightModeChar(x, y, mode, blink)
+  local screen = menu.items[menu.currentItem]
   if blink then
     lcd.drawText(x, y, string.sub(mode,1,1), MIDSIZE + BLINK)
   else
     lcd.drawText(x, y, string.sub(mode,1,1), MIDSIZE)
   end
-  drawFilledRoundedRectangleScrolled(x-3, y-2, 14, 15)
+  drawFilledRoundedRectangleScrolled(x-3, y-2, 14, 15, screen.yScrollPosition)
+  screen = nil
 end
 
 
@@ -552,27 +485,49 @@ end
 -- parashoot icon
 --###############################################################
 local function DrawRescueMode(x, y)
-  drawShape(x+1, y+12, parashoot, 0)
-  drawFilledRoundedRectangleScrolled(x, y, 15, 15)
+  local parashoot = {
+    {6,0,12,-6},
+    {12,-6,11,-9},
+    {11,-9,10,-10},
+    {10,-10,6,-11},
+    {6,-11,2,-10},
+    {2,-10,1,-9},
+    {1,-9,0,-6},
+    {0,-6,6,0},
+    {0,-6,12,-6},
+    {6,0,4,-6},
+    {6,0,8,-6}
+  }
+  local screen = menu.items[menu.currentItem]
+
+  helper.drawShape(x+1, y+12, parashoot, 0)
+  drawFilledRoundedRectangleScrolled(x, y, 15, 15, screen.yScrollPosition)
+
+  screen = nil
+  parashoot = nil
 end
 
 
+--###############################################################
+-- Draw all telemetry raw values in a table
+--###############################################################
 local function DrawAllTelemetryValues()
   local rowHeight = 9 
   local screen = menu.items[menu.currentItem]
   for index=1,#globalTelemetryMap do
-    drawLineScrolled(0, index*rowHeight + rowHeight - 1, screenWidth, index*rowHeight + rowHeight - 1, SOLID, FORCE, screen.yScrollPosition)
-    drawTextScrolled(5, index*rowHeight + 1, globalTelemetryMap[index].label, SMLSIZE, screen.yScrollPosition)
+    helper.drawLineScrolled(0, index*rowHeight + rowHeight - 1, screenWidth, index*rowHeight + rowHeight - 1, SOLID, FORCE, screen.yScrollPosition)
+    helper.drawTextScrolled(5, index*rowHeight + 1, globalTelemetryMap[index].label, SMLSIZE, screen.yScrollPosition)
     if globalTelemetryMap[index].value ~= nil  and type(globalTelemetryMap[index].value) ~= "table"  then
-      drawTextScrolled(screenWidth - 5, index*rowHeight + 1, scale(globalTelemetryMap[index].value, 2), SMLSIZE + RIGHT, screen.yScrollPosition)
+      helper.drawTextScrolled(screenWidth - 5, index*rowHeight + 1, helper.round(globalTelemetryMap[index].value, 2), SMLSIZE + RIGHT, screen.yScrollPosition)
     elseif globalTelemetryMap[index].value ~= nil  and type(globalTelemetryMap[index].value) == "table" and globalTelemetryMap[index].value["lat"] ~= nil and globalTelemetryMap[index].value["lon"] ~= nil  then
-      drawTextScrolled(screenWidth - 5, index*rowHeight + 1, globalTelemetryMap[index].value["lat"] .. ", " .. globalTelemetryMap[index].value["lon"], SMLSIZE + RIGHT, screen.yScrollPosition)
+      helper.drawTextScrolled(screenWidth - 5, index*rowHeight + 1, globalTelemetryMap[index].value["lat"] .. ", " .. globalTelemetryMap[index].value["lon"], SMLSIZE + RIGHT, screen.yScrollPosition)
     else
-      drawTextScrolled(screenWidth - 5, index*rowHeight + 1, "n/a", SMLSIZE + RIGHT, screen.yScrollPosition)
+      helper.drawTextScrolled(screenWidth - 5, index*rowHeight + 1, "n/a", SMLSIZE + RIGHT, screen.yScrollPosition)
     end
   end
+  rowHeight = nil
+  screen = nil
 end
-
 
 
 --###############################################################
@@ -605,7 +560,11 @@ local function DrawMainMenu(items, currentItem)
       index = index + 1
     end
   end
-  
+
+  rowCount = nil
+  itemWidth = nil
+  itemHeight = nil
+  index = nil
 end
 
 
@@ -622,12 +581,12 @@ end
 -- ###############################################################  
 function screen1(event)
   if type(telemetry.gps.value) == "table" then
-    lcd.drawText(30, 44, round(telemetry.gps.value["lat"], 4) .. " N ", 0) 
-    lcd.drawText(30, 54, round(telemetry.gps.value["lon"], 4) .. " E ", 0) 
+    lcd.drawText(30, 44, helper.round(telemetry.gps.value["lat"], 4) .. " N ", 0) 
+    lcd.drawText(30, 54, helper.round(telemetry.gps.value["lon"], 4) .. " E ", 0) 
   end
 
   DrawDistanceAndHeading(60,18, gps_hori_Distance, "m");
-  DrawAltitude(58,26,round(telemetry.galt.value), "m")
+  DrawAltitude(58,26,helper.round(telemetry.galt.value), "m")
   --DrawFlightMode(97,54,"ACRO")
   DrawFlightModeChar(107, 49, "ACRO", false)
   DrawRescueMode(88,47)
@@ -644,6 +603,8 @@ function screen2(event)
   --lastMenuEvent = getTime()
 	--collectgarbage()
   --run_ui(event)
+
+  --widgets.DrawFlightMode(60,44,"ACRO")
 
   DrawTitleBar()
 end
@@ -686,25 +647,25 @@ end
 local item1 = {}
 item1.name = "GPS"
 item1.height = 64
-item1.method = screen1
+item1.drawToScreen = screen1
 item1.yScrollPosition = 0
 
 local item2 = {}
 item2.name = "VTX"
 item2.height = 64
-item2.method = screen2
+item2.drawToScreen = screen2
 item2.yScrollPosition = 0
 
 local item3 = {}
 item3.name = "Stats"
 item3.height = 128
-item3.method = screen3
+item3.drawToScreen = screen3
 item3.yScrollPosition = 0
 
 local item4 = {}
 item4.name = "OPTIONS"
 item4.height = 128
-item4.method = screen4
+item4.drawToScreen = screen4
 item4.yScrollPosition = 0
 
 menu.items = { item1, item2, item3, item4 } -- item5 for screen no.4 should be added after item4
@@ -716,7 +677,7 @@ function MainDraw(event)
   lcd.clear()
   if menu.currentMenu == 0 then
     -- draw selected screen
-    menu.items[menu.currentItem].method(event)
+    menu.items[menu.currentItem].drawToScreen(event)
   elseif menu.currentMenu == 1 then 
     -- draw menu
     DrawMainMenu(menu.items, menu.currentItem)
@@ -797,12 +758,7 @@ local function HandleEvents(event, menu)
 end
 
 
-
-
---------------------------------------------------------------------------------
--- BACKGROUND loop FUNCTION
---------------------------------------------------------------------------------
-local function backgroundwork()
+local function refreshTelemetryAndRecalculate()
   -- background work for betaflight VTX
   --if menu.currentItem == 2 and menu.currentMenu == 0 and lastMenuEvent + MENU_TIMESLICE < getTime() then
     --background.run_bg()
@@ -813,11 +769,20 @@ local function backgroundwork()
   RefreshTelemetryValues()
   -- calculations
   CalculateGpsLock()
+  CalculateGpsData()
   CalculateBatteryTypeAndStatus()
   CalculateHeadingOrientation()
-  CalculateGpsData()
-
   collectgarbage()
+end
+
+
+
+
+--------------------------------------------------------------------------------
+-- BACKGROUND loop FUNCTION
+--------------------------------------------------------------------------------
+local function backgroundwork()
+  refreshTelemetryAndRecalculate()
 end
 
 
@@ -828,11 +793,12 @@ local function run(event)
   
   local filteredEvent = HandleEvents(event, menu)
   
-  backgroundwork()
+  refreshTelemetryAndRecalculate()
 
   MainDraw(filteredEvent)
 
   collectgarbage()
+
 end
 
 --------------------------------------------------------------------------------
