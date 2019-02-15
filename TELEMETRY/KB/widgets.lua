@@ -1,4 +1,4 @@
-local helper = assert(loadScript(SCRIPT_HOME.."/basics.lua"))()
+local helper = assert(loadScript(KB_SCRIPT_HOME.."/basics.lua"))()
 
 
 --###############################################################

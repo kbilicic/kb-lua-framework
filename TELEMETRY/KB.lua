@@ -1,7 +1,8 @@
-SCRIPT_HOME = "/SCRIPTS/TELEMETRY/KB"
+KB_SCRIPT_HOME = "/SCRIPTS/TELEMETRY/KB"
 
-local helper = assert(loadScript(SCRIPT_HOME.."/basics.lua"))()
-local widgets = assert(loadScript(SCRIPT_HOME.."/widgets.luac"))()
+local helper = assert(loadScript(KB_SCRIPT_HOME.."/basics.lua"))()
+local widgets = assert(loadScript(KB_SCRIPT_HOME.."/widgets.luac"))()
+local vtx = assert(loadScript("/SCRIPTS/TELEMETRY/vtx.lua"))()
 
 
 --###############################################################
@@ -600,9 +601,7 @@ end
 -- Draw screen 2
 -- ###############################################################  
 function screen2(event)
-  --lastMenuEvent = getTime()
-	--collectgarbage()
-  --run_ui(event)
+  vtx.run(event)
 
   --widgets.DrawFlightMode(60,44,"ACRO")
 
@@ -759,11 +758,14 @@ end
 
 
 local function refreshTelemetryAndRecalculate()
+  if vtx.lastMenuEvent == nil then
+    vtx.lastMenuEvent = 0
+    vtx.MENU_TIMESLICE = 100
+  end
   -- background work for betaflight VTX
-  --if menu.currentItem == 2 and menu.currentMenu == 0 and lastMenuEvent + MENU_TIMESLICE < getTime() then
-    --background.run_bg()
-    --collectgarbage()
-  --end
+  if menu.currentItem == 2 and menu.currentMenu == 0 and vtx.lastMenuEvent + vtx.MENU_TIMESLICE < vtx.getTime() then
+    vtx.background()
+  end
 
   -- get new values
   RefreshTelemetryValues()
