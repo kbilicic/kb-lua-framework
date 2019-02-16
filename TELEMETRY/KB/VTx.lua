@@ -91,4 +91,25 @@ function init()
 	return 0
 end
 
-return { init=background.init, run=run, background=run_bg }
+
+local function clearTable(t)
+    if type(t)=="table" then
+        for i,v in pairs(t) do
+            if type(v) == "table" then
+                clearTable(v)
+            end
+            t[i] = nil
+        end
+    end
+    collectgarbage()
+    return t
+end
+
+local function cleanup()
+	clearTable(protocol)
+	clearTable(MenuBox)
+	clearTable(SaveBox)
+	collectgarbage()
+end
+
+return { init=background.init, run=run, background=run_bg, cleanup=cleanup }

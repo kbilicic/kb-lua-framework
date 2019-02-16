@@ -1,8 +1,8 @@
 KB_SCRIPT_HOME = "/SCRIPTS/TELEMETRY/KB"
 
-local helper = assert(loadScript(KB_SCRIPT_HOME.."/basics.lua"))()
+local helper = assert(loadScript(KB_SCRIPT_HOME.."/basics.luac"))()
 local widgets = assert(loadScript(KB_SCRIPT_HOME.."/widgets.luac"))()
-local vtx = assert(loadScript("/SCRIPTS/TELEMETRY/vtx.lua"))()
+local vtx = nil
 
 
 --###############################################################
@@ -127,6 +127,7 @@ end
 -- Helper method to draw a one pixel rounded corner rectangle
 -- ###############################################################
 local function drawFilledRoundedRectangleScrolled(x,y, width, height, yScrollPos)
+  if yScrollPos == nil then yScrollPos = 0 end
   lcd.drawPoint(x,y - yScrollPos);
   lcd.drawPoint(x,y+height-1 - yScrollPos);
   lcd.drawPoint(x+width-1,y - yScrollPos);
@@ -262,60 +263,6 @@ local function CalculateHeadingOrientation()
     elseif telemetry.heading.value <= 360.0 then data.headingOrt="N"    
   end
 end
-
-
--- ###############################################################
--- Display vertical RSSI with exponential curve style
-------------------------------------------------------------------
--- example call DrawVerticalRssi2(100, 8, 2, 7, 17, 1.9)
--- ###############################################################
-local function DrawVerticalRssi2(rssiBarX, rssiBarY, oneBarHeight, minBarWidth, maxBars, curvePower)
-  local bars = math.ceil(maxBars * telemetry.rssi.value/100)
-  if( telemetry.rssi.value < 85 ) then
-    local offset = helper.round(math.pow(bars,curvePower) / 10) -- exponential offset
-    lcd.drawText(rssiBarX + 20 - offset, rssiBarY + (oneBarHeight + 1)*(maxBars+1-bars)-7, telemetry.rssi.value .. "db", SMLSIZE) 
-  end
-  local rightX = -1
-  for i=maxBars + 1 - bars,maxBars do
-    local offset = helper.round(math.pow(maxBars-i,curvePower) / 10) -- exponential offset
-    local leftX = rssiBarX + 20 - offset
-    local barWidth = minBarWidth + offset
-    
-    if rightX < 0 then 
-      -- calcuate where is the right side of the chart
-      rightX = leftX + barWidth
-    else
-      -- fix barWidth for all other bars
-      barWidth = rightX - leftX
-    end
-    lcd.drawFilledRectangle(leftX, rssiBarY + (oneBarHeight+1)*i, barWidth, oneBarHeight, SOLID)
-  end
-  bars = nil
-end
-
-
-
--- ###############################################################
--- Draw Battery level
--- ###############################################################
-local function DrawBatteryLevel(battBarX, battBarY, barWidth, battBarMax)
-  lcd.drawRectangle(battBarX, battBarY, barWidth, battBarMax + 2)
-  lcd.drawFilledRectangle(battBarX + 4, battBarY - 2, barWidth-8 , 2)
-
-  local battBarHeight = helper.round(battBarMax * data.batteryPercent / 100);
-  if data.batteryPercent > 99.9 then
-    lcd.drawText(battBarX + 2, battBarMax + battBarY + 2 - battBarHeight, "FULL", SMLSIZE)
-  elseif data.batteryPercent > 20 and data.batteryPercent ~= nil then
-    lcd.drawText(battBarX + 2, battBarMax + battBarY + 2 - battBarHeight, helper.round(data.batteryPercent).."%", SMLSIZE)
-  elseif data.batteryPercent ~= nil then
-    lcd.drawText(battBarX + 2, battBarY + battBarMax - 6 - battBarHeight, helper.round(data.batteryPercent).."%", SMLSIZE)
-  end
-  
-  if data.showBattType == true then
-    lcd.drawText(battBarX + 5, battBarMax + battBarY - 18,  data.cellCount .. "S", DBLSIZE)
-  end
-  lcd.drawFilledRectangle(battBarX + 1, battBarMax + battBarY + 1 - battBarHeight, barWidth-2, battBarHeight)
-end
     
 
 -- ###############################################################
@@ -404,7 +351,7 @@ end
 -- number of satellites blink until a fix has been established
 -- when a 2D or 3D fix is established, satellite number stops to blink
 --###############################################################
-local function DrawGpsFix()
+local function DrawGpsFix(gpslock, satcount)
   local satelliteDish = {
     -- disk
     {2,-8,1,-11},
@@ -447,10 +394,10 @@ local function DrawGpsFix()
   }
 
   helper.drawShape(28, 35, satelliteDish, 0)
-  if data.gpslock > 1 then
-    lcd.drawText(43, 15, data.satcount, SMLSIZE)
+  if gpslock > 1 then
+    lcd.drawText(43, 15, satcount, SMLSIZE)
   else
-    lcd.drawText(43, 15, data.satcount, SMLSIZE + BLINK)
+    lcd.drawText(43, 15, satcount, SMLSIZE + BLINK)
   end
 
   satelliteDish = nil
@@ -469,14 +416,13 @@ end
 --###############################################################
 -- Draw flight MODE initial character (black background)
 --###############################################################
-local function DrawFlightModeChar(x, y, mode, blink)
-  local screen = menu.items[menu.currentItem]
+local function DrawFlightModeChar(x, y, mode, blink, yScrollPossition)
   if blink then
     lcd.drawText(x, y, string.sub(mode,1,1), MIDSIZE + BLINK)
   else
     lcd.drawText(x, y, string.sub(mode,1,1), MIDSIZE)
   end
-  drawFilledRoundedRectangleScrolled(x-3, y-2, 14, 15, screen.yScrollPosition)
+  drawFilledRoundedRectangleScrolled(x-3, y-2, 14, 15, yScrollPosition)
   screen = nil
 end
 
@@ -485,7 +431,7 @@ end
 -- Draw rescue MODE / return to home (black background)
 -- parashoot icon
 --###############################################################
-local function DrawRescueMode(x, y)
+local function DrawRescueMode(x, y, yScrollPosition)
   local parashoot = {
     {6,0,12,-6},
     {12,-6,11,-9},
@@ -499,10 +445,9 @@ local function DrawRescueMode(x, y)
     {6,0,4,-6},
     {6,0,8,-6}
   }
-  local screen = menu.items[menu.currentItem]
 
   helper.drawShape(x+1, y+12, parashoot, 0)
-  drawFilledRoundedRectangleScrolled(x, y, 15, 15, screen.yScrollPosition)
+  drawFilledRoundedRectangleScrolled(x, y, 15, 15, yScrollPosition)
 
   screen = nil
   parashoot = nil
@@ -581,26 +526,38 @@ end
 -- Draw screen 1
 -- ###############################################################  
 function screen1(event)
+  if widgets == nil then
+    vtx = nil
+    collectgarbage()
+    widgets = assert(loadScript(KB_SCRIPT_HOME.."/widgets.luac"))()
+  end
   if type(telemetry.gps.value) == "table" then
     lcd.drawText(30, 44, helper.round(telemetry.gps.value["lat"], 4) .. " N ", 0) 
     lcd.drawText(30, 54, helper.round(telemetry.gps.value["lon"], 4) .. " E ", 0) 
   end
 
+  local screen = menu.items[menu.currentItem]
+
   DrawDistanceAndHeading(60,18, gps_hori_Distance, "m");
   DrawAltitude(58,26,helper.round(telemetry.galt.value), "m")
   --DrawFlightMode(97,54,"ACRO")
-  DrawFlightModeChar(107, 49, "ACRO", false)
-  DrawRescueMode(88,47)
-  DrawGpsFix()
+  DrawFlightModeChar(107, 49, "ACRO", false, screen.yScrollPosition)
+  DrawRescueMode(88,47, screen.yScrollPosition)
+  DrawGpsFix(data.gpslock, data.satcount)
   DrawTitleBar()
-  DrawBatteryLevel(1,13,23,47)
-  DrawVerticalRssi2(screenWidth-28, 8, 2, 7, 17, 1.9)
+  widgets.DrawBatteryLevel(1,13,23,47, data.batteryPercent, data.cellCount)
+  widgets.DrawVerticalRssi2(telemetry.rssi.value, screenWidth-28, 8, 2, 7, 17, 1.9)
 end
 
 -- ###############################################################
 -- Draw screen 2
 -- ###############################################################  
 function screen2(event)
+  if vtx == nil then
+    widgets = nil
+    collectgarbage()
+    vtx =  assert(loadScript("/SCRIPTS/TELEMETRY/vtx.luac"))()
+  end
   vtx.run(event)
 
   --widgets.DrawFlightMode(60,44,"ACRO")
@@ -612,10 +569,16 @@ end
 -- Draw screen 3
 -- ###############################################################  
 function screen3(event)
+  if widgets == nil then
+    vtx = nil
+    collectgarbage()
+    --helper = assert(loadScript(KB_SCRIPT_HOME.."/basics.luac"))()
+    widgets = assert(loadScript(KB_SCRIPT_HOME.."/widgets.luac"))()
+  end
+
   local screen = menu.items[menu.currentItem]
   -- send screen3 height
   DrawAllTelemetryValues()
-
 
   drawYScrollBar(screen.height, screen.yScrollPosition)
   DrawTitleBar()
@@ -623,6 +586,12 @@ end
 
 
 function screen4(event)
+  if widgets == nil then
+    vtx = nil
+    collectgarbage()
+    widgets = assert(loadScript(KB_SCRIPT_HOME.."/widgets.luac"))()
+  end
+
   local screen = menu.items[menu.currentItem]
   
   local text = "Reset all data to home location values? (altitude, distance from home, GPS home location)"
@@ -758,27 +727,31 @@ end
 
 
 local function refreshTelemetryAndRecalculate()
-  if vtx.lastMenuEvent == nil then
-    vtx.lastMenuEvent = 0
-    vtx.MENU_TIMESLICE = 100
+  if vtx ~= nil then
+    if vtx.lastMenuEvent == nil then
+      vtx.lastMenuEvent = 0
+      vtx.MENU_TIMESLICE = 100
+    end
+    --background work for betaflight VTX
+    if menu.currentItem == 2 and menu.currentMenu == 0 and vtx.lastMenuEvent + vtx.MENU_TIMESLICE < vtx.getTime() then
+      vtx.background()
+    end
+  else
+    -- get new values
+    RefreshTelemetryValues()
+    -- calculations
+    CalculateGpsLock()
+    CalculateGpsData()
+    CalculateBatteryTypeAndStatus()
+    CalculateHeadingOrientation()
+    collectgarbage()
   end
-  -- background work for betaflight VTX
-  if menu.currentItem == 2 and menu.currentMenu == 0 and vtx.lastMenuEvent + vtx.MENU_TIMESLICE < vtx.getTime() then
-    vtx.background()
-  end
-
-  -- get new values
-  RefreshTelemetryValues()
-  -- calculations
-  CalculateGpsLock()
-  CalculateGpsData()
-  CalculateBatteryTypeAndStatus()
-  CalculateHeadingOrientation()
-  collectgarbage()
 end
 
 
+local function init()
 
+end
 
 --------------------------------------------------------------------------------
 -- BACKGROUND loop FUNCTION
@@ -806,4 +779,4 @@ end
 --------------------------------------------------------------------------------
 -- SCRIPT END
 --------------------------------------------------------------------------------
-return {run=run,  background=backgroundwork}
+return {init=init, run=run, background=backgroundwork}
