@@ -162,9 +162,7 @@ local function CalculateBatteryTypeAndStatus()
       data.minVoltage = data.cellCount * 3.4
     end
   
-    if not data.cellCount == nil then
-      data.cellVoltage = helper.round(telemetry.battsum.value / data.cellCount, 2)
-    end
+    data.cellVoltage = helper.round(telemetry.battsum.value / data.cellCount, 2)
     data.batteryPercent = 100 * (telemetry.battsum.value - data.minVoltage) / (data.maxVoltage - data.minVoltage)
   end
 

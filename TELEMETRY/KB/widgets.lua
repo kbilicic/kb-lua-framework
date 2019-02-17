@@ -41,17 +41,26 @@ end
 -- ###############################################################
 -- Draw Battery level
 -- ###############################################################
-local function DrawBatteryLevel(battBarX, battBarY, barWidth, battBarMax, batteryPercent, cellCount)
+local function DrawBatteryLevel(battBarX, battBarY, barWidth, battBarMax, batteryPercent, cellCount, cellVoltage)
     lcd.drawRectangle(battBarX, battBarY, barWidth, battBarMax + 2)
     lcd.drawFilledRectangle(battBarX + 4, battBarY - 2, barWidth-8 , 2)
+    
+    local batterStatusValue = nil
+    if barWidth < 12 then
+        batterStatusValue = nil
+    elseif cellVoltage == nil then
+        batterStatusValue = helper.round(batteryPercent) .. "%"
+    else
+        batterStatusValue = helper.round(cellVoltage, 2) .. "V"
+    end
   
     local battBarHeight = helper.round(battBarMax * batteryPercent / 100);
     if batteryPercent > 99.9 then
       lcd.drawText(battBarX + 2, battBarMax + battBarY + 2 - battBarHeight, "FULL", SMLSIZE)
-    elseif batteryPercent > 20 and batteryPercent ~= nil then
-      lcd.drawText(battBarX + 2, battBarMax + battBarY + 2 - battBarHeight, helper.round(batteryPercent).."%", SMLSIZE)
-    elseif batteryPercent ~= nil then
-      lcd.drawText(battBarX + 2, battBarY + battBarMax - 6 - battBarHeight, helper.round(batteryPercent).."%", SMLSIZE)
+    elseif batteryPercent > 20 and batterStatusValue ~= nil then
+      lcd.drawText(battBarX + 2, battBarMax + battBarY + 2 - battBarHeight, batterStatusValue, SMLSIZE)
+    elseif batterStatusValue ~= nil then
+      lcd.drawText(battBarX + 2, battBarY + battBarMax - 6 - battBarHeight, batterStatusValue, SMLSIZE)
     end
     
     --if data.showBattType == true then
@@ -128,6 +137,31 @@ local function DrawAltitude(x, y, alt, measure)
     clearTable(mountainShape)
 end
 
+
+--###############################################################
+-- Draw rescue MODE / return to home (black background)
+-- parashoot icon
+--###############################################################
+local function DrawRescueMode(x, y, yScrollPosition)
+    local parashoot = {
+      {6,0,12,-6},
+      {12,-6,11,-9},
+      {11,-9,10,-10},
+      {10,-10,6,-11},
+      {6,-11,2,-10},
+      {2,-10,1,-9},
+      {1,-9,0,-6},
+      {0,-6,6,0},
+      {0,-6,12,-6},
+      {6,0,4,-6},
+      {6,0,8,-6}
+    }
+  
+    helper.drawShape(x+1, y+12, parashoot, 0)
+    drawFilledRoundedRectangleScrolled(x, y, 15, 15, yScrollPosition)
+    clearTable(parashoot)
+  end
+
 --###############################################################
 -- Draw flight MODE initial character (black background)
 --###############################################################
@@ -139,9 +173,66 @@ local function DrawFlightModeChar(x, y, mode, blink, yScrollPossition)
     end
     drawFilledRoundedRectangleScrolled(x-3, y-2, 14, 15, yScrollPosition)
     screen = nil
+end
+
+
+
+--###############################################################
+-- Draw GPS dish and number of satellites
+-- number of satellites blink until a fix has been established
+-- when a 2D or 3D fix is established, satellite number stops to blink
+--###############################################################
+local function DrawGpsFix(gpslock, satcount)
+    local satelliteDish = {
+      -- disk
+      {2,-8,1,-11},
+      {1,-11,1,-15},
+      {1,-15,2,-16},
+      {2,-16,3,-17},
+      {3,-17,4,-18},
+      {4,-18,5,-19},
+      {5,-19,6,-19},
+      {6,-19,7,-18},
+      {7,-18,8,-18},
+      {8,-18,9,-17},
+      {9,-17,10,-17},
+      {10,-17,11,-16},
+      {16,-11,17,-9},
+      {17,-9,17,-5},
+      {17,-5,16,-4},
+      {16,-4,14,-3},
+      {14,-3,12,-3},
+      {12,-3,11,-2},
+      {11,-2,6,-4},
+      {6,-4,2,-8},
+      {16,-4,10,-5},
+      {10,-5,6,-7},
+      {6,-7,4,-11},
+      {4,-11,3,-16},
+      {8,-2,7,-2},
+      --base
+      {3,-1,14,-1},
+      {3,0,14,0},
+      -- reciever
+      {7,-14,13,-14},
+      {8,-10,13,-14},
+      {12,-8,13,-14},
+      {13,-13,14,-13},
+      {14,-13,14,-14},
+      {14,-14,13,-14},
+      {13,-14,13,-13},
+      {13,-15,12,-15}
+    }
+  
+    helper.drawShape(28, 35, satelliteDish, 0)
+    if gpslock > 1 then
+      lcd.drawText(43, 15, satcount, SMLSIZE)
+    else
+      lcd.drawText(43, 15, satcount, SMLSIZE + BLINK)
+    end
+
+    clearTable(satelliteDish)
   end
-
-
 
 
 
@@ -158,6 +249,8 @@ widgets.DrawVerticalRssi2 = DrawVerticalRssi2
 widgets.DrawDistanceAndHeading = DrawDistanceAndHeading
 widgets.DrawAltitude = DrawAltitude
 widgets.DrawFlightModeChar = DrawFlightModeChar
+widgets.DrawRescueMode = DrawRescueMode
+widgets.DrawGpsFix = DrawGpsFix
 widgets.cleanup = cleanup
 
 

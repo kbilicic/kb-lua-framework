@@ -53,7 +53,7 @@ menu.previousItem = 1 -- main menu previous selected item
 -- ###############################################################
 -- Page title bar
 -- ###############################################################
-local function DrawTitleBar(cellCount, battsum, cellVoltage, modelName)
+local function DrawTitleBar(cellCount, battsum, cellVoltage)
   modelname = model.getInfo()
   lcd.drawFilledRectangle(0, 0, screenWidth , 9, ERASE)
 
@@ -145,13 +145,19 @@ function screen1(event)
   widgets.DrawDistanceAndHeading(60,18, frsky.telemetry.heading.value, frsky.data.gps_hori_Distance, "m");
   widgets.DrawAltitude(58,26,helper.round(frsky.telemetry.galt.value), "m")
   --DrawFlightMode(97,54,"ACRO")
-  widgets.DrawFlightModeChar(107, 49, "ACRO", false, screen.yScrollPosition)
-  --DrawRescueMode(88,47, screen.yScrollPosition)
-  --DrawGpsFix(frsky.data.gpslock, frsky.data.satcount)
-  widgets.DrawBatteryLevel(1,13,23,47, frsky.data.batteryPercent, frsky.data.cellCount)
+  widgets.DrawFlightModeChar(107, 49, "ACRO", false, 0)
+  widgets.DrawRescueMode(88,47, 0)
+  widgets.DrawGpsFix(frsky.data.gpslock, frsky.data.satcount)
+  widgets.DrawBatteryLevel(1,13,25,47, frsky.data.batteryPercent, frsky.data.cellCount, frsky.data.cellVoltage)
   widgets.DrawVerticalRssi2(frsky.telemetry.rssi.value, screenWidth-28, 8, 2, 7, 17, 1.9)
 
-  DrawTitleBar(4,16,4,"Racer")
+  -- draw coordinates
+  if frsky.telemetry.gps.value ~= nil and type(frsky.telemetry.gps.value) == "table" then
+    lcd.drawText(30, 44, helper.round(frsky.telemetry.gps.value["lat"], 4) .. " N ", 0)
+    lcd.drawText(30, 54, helper.round(frsky.telemetry.gps.value["lon"], 4) .. " E ", 0)
+  end
+
+  DrawTitleBar(frsky.data.cellCount, frsky.telemetry.battsum.value, frsky.data.cellVoltage)
 end
 
 -- ###############################################################
@@ -176,7 +182,7 @@ function screen2(event)
 
   --widgets.DrawFlightMode(60,44,"ACRO")
 
-  DrawTitleBar(4,16,4,"Racer")
+  DrawTitleBar(frsky.data.cellCount, frsky.telemetry.battsum.value, frsky.data.cellVoltage)
 end
 
 -- ###############################################################
@@ -186,7 +192,7 @@ function screen3(event)
   local screen = menu.items[menu.currentItem]
 
   drawYScrollBar(screen.height, screen.yScrollPosition)
-  DrawTitleBar(4,16,4,"Racer")
+  DrawTitleBar(frsky.data.cellCount, frsky.telemetry.battsum.value, frsky.data.cellVoltage)
 end
 
 
@@ -194,7 +200,7 @@ function screen4(event)
   local screen = menu.items[menu.currentItem]
 
   drawYScrollBar(screen.height, screen.yScrollPosition)
-  DrawTitleBar(4,16,4,"Racer")
+  DrawTitleBar(frsky.data.cellCount, frsky.telemetry.battsum.value, frsky.data.cellVoltage)
 end
 
 -- to add new screen create a method and add new option to menu, equivalent to screen1, screen2 and screen3
