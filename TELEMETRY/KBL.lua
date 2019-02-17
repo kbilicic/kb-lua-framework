@@ -142,6 +142,14 @@ function screen1(event)
   frsky.refreshTelemetryAndRecalculate()
 
   widgets.DrawVerticalRssi2(frsky.telemetry.rssi.value, screenWidth-28, 8, 2, 7, 17, 1.9)
+  widgets.DrawDistanceAndHeading(60,18, frsky.telemetry.heading.value, frsky.data.gps_hori_Distance, "m");
+  widgets.DrawAltitude(58,26,helper.round(frsky.telemetry.galt.value), "m")
+  --DrawFlightMode(97,54,"ACRO")
+  widgets.DrawFlightModeChar(107, 49, "ACRO", false, screen.yScrollPosition)
+  --DrawRescueMode(88,47, screen.yScrollPosition)
+  --DrawGpsFix(frsky.data.gpslock, frsky.data.satcount)
+  widgets.DrawBatteryLevel(1,13,23,47, frsky.data.batteryPercent, frsky.data.cellCount)
+  widgets.DrawVerticalRssi2(frsky.telemetry.rssi.value, screenWidth-28, 8, 2, 7, 17, 1.9)
 
   DrawTitleBar(4,16,4,"Racer")
 end

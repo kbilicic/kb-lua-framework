@@ -538,15 +538,15 @@ function screen1(event)
 
   local screen = menu.items[menu.currentItem]
 
-  DrawDistanceAndHeading(60,18, gps_hori_Distance, "m");
-  DrawAltitude(58,26,helper.round(telemetry.galt.value), "m")
+  DrawDistanceAndHeading(60,18, frsky.data.gps_hori_Distance, "m");
+  DrawAltitude(58,26,helper.round(frsky.telemetry.galt.value), "m")
   --DrawFlightMode(97,54,"ACRO")
   DrawFlightModeChar(107, 49, "ACRO", false, screen.yScrollPosition)
   DrawRescueMode(88,47, screen.yScrollPosition)
-  DrawGpsFix(data.gpslock, data.satcount)
+  DrawGpsFix(frsky.data.gpslock, frsky.data.satcount)
   DrawTitleBar()
-  widgets.DrawBatteryLevel(1,13,23,47, data.batteryPercent, data.cellCount)
-  widgets.DrawVerticalRssi2(telemetry.rssi.value, screenWidth-28, 8, 2, 7, 17, 1.9)
+  widgets.DrawBatteryLevel(1,13,23,47, frsky.data.batteryPercent, frsky.data.cellCount)
+  widgets.DrawVerticalRssi2(frsky.telemetry.rssi.value, screenWidth-28, 8, 2, 7, 17, 1.9)
 end
 
 -- ###############################################################

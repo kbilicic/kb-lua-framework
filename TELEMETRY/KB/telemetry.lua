@@ -70,8 +70,7 @@ local data = {}
     data.gpslock    = 0
     data.showBattType = false
     data.battTypeCalculated = false
-  
-local gps_hori_Distance=0.0
+    data.gps_hori_Distance = 0
 
 
 --###############################################################
@@ -121,7 +120,7 @@ local function CalculateGpsData()
             math.cos(math.rad(telemetry.gps.value["lat"])) * math.cos(math.rad(data.latHome)) *
             math.sin(dlon / 2) * math.sin(dlon / 2))
         local c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-        gps_hori_Distance = helper.round(radius * c)
+        data.gps_hori_Distance = helper.round(radius * c)
         sin = nil
         cos = nil
         radius = nil

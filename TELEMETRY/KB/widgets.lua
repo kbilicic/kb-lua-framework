@@ -1,5 +1,32 @@
 if helper == nil then
-    helper = assert(loadScript(KB_SCRIPT_HOME.."/basics.lua"))()
+    helper = assert(loadScript(KB_SCRIPT_HOME.."/basics.luac"))()
+end
+
+
+local function clearTable(t)
+    if type(t)=="table" then
+        for i,v in pairs(t) do
+            if type(v) == "table" then
+                clearTable(v)
+            end
+            t[i] = nil
+        end
+    end
+    collectgarbage()
+    return t
+end
+
+
+-- ###############################################################
+-- Helper method to draw a one pixel rounded corner rectangle
+-- ###############################################################
+local function drawFilledRoundedRectangleScrolled(x,y, width, height, yScrollPos)
+    if yScrollPos == nil then yScrollPos = 0 end
+    lcd.drawPoint(x,y - yScrollPos);
+    lcd.drawPoint(x,y+height-1 - yScrollPos);
+    lcd.drawPoint(x+width-1,y - yScrollPos);
+    lcd.drawPoint(x+width-1,y+height-1 - yScrollPos);
+    lcd.drawFilledRectangle(x, y - yScrollPos, width, height)
 end
 
 
@@ -63,18 +90,60 @@ local function DrawVerticalRssi2(rssi, rssiBarX, rssiBarY, oneBarHeight, minBarW
     bars = nil
 end
 
-local function clearTable(t)
-    if type(t)=="table" then
-        for i,v in pairs(t) do
-            if type(v) == "table" then
-                clearTable(v)
-            end
-            t[i] = nil
-        end
-    end
-    collectgarbage()
-    return t
+
+--###############################################################
+-- Draw a mountain shape and altitude in meters
+--###############################################################
+local function DrawDistanceAndHeading(x, y, heading, distance, measure)
+    local homeShape2 = {
+      { 0, -6, -5,  0},
+      {-5,  0,  -2,  0},
+      {-2,  0,  -2,  6},
+      { -2,  6,  2,  6},
+      { 2,  6,  2, 0},
+      { 2,  0,  5, 0},
+      { 5,  0,  0, -6}
+    }
+    helper.drawShape(x, y, homeShape2, math.rad(heading))
+    lcd.drawText(x+8, y-5, distance .. measure, MIDSIZE)
+    clearTable(homeShape2)
 end
+
+
+--###############################################################
+-- Draw a mountain shape and altitude in meters
+--###############################################################
+local function DrawAltitude(x, y, alt, measure)
+    local mountainShape = {
+      {-4, 0, -2, -4},
+      {-2, -4, -1, -3},
+      {-1, -3, 2, -9},
+      {2, -9, 4, -6},
+      {2,-4, 6,-7},
+      {6,-7, 9,0},
+      {2,0, -2, -4}
+    }
+    helper.drawShape(x, y + 10, mountainShape, 0)
+    lcd.drawText(x + 11, y, alt .. measure, MIDSIZE)
+    clearTable(mountainShape)
+end
+
+--###############################################################
+-- Draw flight MODE initial character (black background)
+--###############################################################
+local function DrawFlightModeChar(x, y, mode, blink, yScrollPossition)
+    if blink then
+      lcd.drawText(x, y, string.sub(mode,1,1), MIDSIZE + BLINK)
+    else
+      lcd.drawText(x, y, string.sub(mode,1,1), MIDSIZE)
+    end
+    drawFilledRoundedRectangleScrolled(x-3, y-2, 14, 15, yScrollPosition)
+    screen = nil
+  end
+
+
+
+
 
 local widgets = {}
 
@@ -86,6 +155,9 @@ end
 widgets.DrawFlightMode = DrawFlightMode
 widgets.DrawBatteryLevel = DrawBatteryLevel
 widgets.DrawVerticalRssi2 = DrawVerticalRssi2
+widgets.DrawDistanceAndHeading = DrawDistanceAndHeading
+widgets.DrawAltitude = DrawAltitude
+widgets.DrawFlightModeChar = DrawFlightModeChar
 widgets.cleanup = cleanup
 
 
