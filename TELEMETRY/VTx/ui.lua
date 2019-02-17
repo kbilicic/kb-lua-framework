@@ -52,6 +52,11 @@ local menuActive = false
 local lastRunTS = 0
 local killEnterBreak = 0
 
+VTX_POWER = 0
+VTX_BAND = ""
+VTX_CHANNEL = 0
+
+
 Page = nil
 
 backgroundFill = HORUS and MENU_TITLE_BGCOLOR or (backgroundFill or ERASE)
@@ -185,6 +190,24 @@ function drawScreenTitle(screen_title)
 	lcd.drawText(1,HORUS and 0 or 1,screen_title,INVERS)
 end
 
+local function getVtxValues(f)
+	local val = "---"
+	if f.value then
+		val = f.value
+		if f.table and f.table[f.value] then
+			-- get value from table (for example power setting)
+			val = f.table[f.value]
+		end
+	end
+	if f.t == "Power" then
+		VTX_POWER = val
+	elseif f.t == "Chan" then
+		VTX_CHANNEL = val
+	elseif f.t == "Band" then
+		VTX_BAND = val
+	end
+end
+
 local function drawScreen()
 	local screen_title = Page.title
 	drawScreenTitle(screen_title)
@@ -207,6 +230,7 @@ local function drawScreen()
 		end
 		local spacing = 20
 		if f.t ~= nil then
+			-- draw setting name
 			lcd.drawText(f.x, f.y, f.t, heading_options)
 			if f.sp ~= nil then
 				spacing = f.sp
@@ -220,12 +244,17 @@ local function drawScreen()
 			end
 			val = f.value
 			if f.table and f.table[f.value] then
+				-- get value from table (for example power setting)
 				val = f.table[f.value]
+				-- KB, save vtx power, band and chan to local variables
+				getVtxValues(f)
 			end
 		end
+		-- draw setting value
 		lcd.drawText(f.x + spacing, f.y, val, value_options)
 	end
 end
+
 
 function clipValue(val,min,max)
 	if val < min then

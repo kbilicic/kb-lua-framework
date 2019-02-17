@@ -8,6 +8,7 @@ REQUEST_FRAME_ID = 0x30
 REPLY_FRAME_ID   = 0x32
 HORUS = LCD_W >= 480
 local fa = HORUS and 2 or 1
+VTX_POWER = 0
 
 MenuBox = { x=15 * fa, y=12 * fa, w=100 * fa, x_offset=36 * fa, h_line=8 * (fa * 1.5), h_offset=3 * fa }
 SaveBox = { x=15 * fa, y=12 * fa, w=100 * fa, x_offset=4 * fa,  h=30 * fa, h_offset=5 * fa }
@@ -76,6 +77,7 @@ function run(event)
 	lastMenuEvent = getTime()
 	collectgarbage()
 	run_ui(event)
+	VTX_POWER = run_ui.VTX_POWER
 	return 0
 end
 
