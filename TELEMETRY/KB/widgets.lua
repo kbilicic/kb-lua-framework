@@ -132,9 +132,27 @@ local function DrawAltitude(x, y, alt, measure)
       {6,-7, 9,0},
       {2,0, -2, -4}
     }
-    helper.drawShape(x, y + 10, mountainShape, 0)
+    helper.drawShape2Scrolled(x, y + 10, 0, mountainShape, 0, 1)
     lcd.drawText(x + 11, y, alt .. measure, MIDSIZE)
     clearTable(mountainShape)
+end
+
+--###############################################################
+-- Draw a mountain shape and altitude in meters - small
+--###############################################################
+local function DrawAltitudSmall(x, y, alt, measure)
+  local mountainShape = {
+    {-4, 0, -2, -4},
+    {-2, -4, -1, -3},
+    {-1, -3, 2, -9},
+    {2, -9, 4, -6},
+    {2,-4, 6,-7},
+    {6,-7, 9,0},
+    {2,0, -2, -4}
+  }
+  helper.drawShape2Scrolled(x, y+5, 0, mountainShape, 0, 0.5)
+  lcd.drawText(x + 6, y, alt .. measure, SMLSIZE)
+  clearTable(mountainShape)
 end
 
 
@@ -234,6 +252,30 @@ local function DrawGpsFix(gpslock, satcount)
     clearTable(satelliteDish)
   end
 
+local function DrawVtxData(x,y, yScrollPos, band, channel, power, pit) 
+  local tvShape = {
+    -- disk
+    {0,0,24,0},
+    {24,0,24,20},
+    {24,20,0,20},
+    {0,20,0,0},
+    {12,0,4,-5},
+    {12,0,20,-5}
+  }
+
+  helper.drawShape(x, y - yScrollPos, tvShape, yScrollPos)
+  lcd.drawText(x+4, y + 3 - yScrollPos, band .. " : " .. channel, SMLSIZE)
+  if power < 999 then
+    lcd.drawText(x+2, y + 11 - yScrollPos, power .. "m", SMLSIZE)
+  else 
+    lcd.drawText(x+4, y + 11 - yScrollPos, helper.round(power / 1000, 1) .. "W", SMLSIZE)
+  end
+  clearTable(tvShape)
+end
+
+
+
+
 
 
 local widgets = {}
@@ -248,9 +290,11 @@ widgets.DrawBatteryLevel = DrawBatteryLevel
 widgets.DrawVerticalRssi2 = DrawVerticalRssi2
 widgets.DrawDistanceAndHeading = DrawDistanceAndHeading
 widgets.DrawAltitude = DrawAltitude
+widgets.DrawAltitudSmall = DrawAltitudSmall
 widgets.DrawFlightModeChar = DrawFlightModeChar
 widgets.DrawRescueMode = DrawRescueMode
 widgets.DrawGpsFix = DrawGpsFix
+widgets.DrawVtxData = DrawVtxData
 widgets.cleanup = cleanup
 
 

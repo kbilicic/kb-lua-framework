@@ -247,7 +247,7 @@ local function drawScreen()
 				-- get value from table (for example power setting)
 				val = f.table[f.value]
 				-- KB, save vtx power, band and chan to local variables
-				getVtxValues(f)
+				--getVtxValues(f)
 			end
 		end
 		-- draw setting value

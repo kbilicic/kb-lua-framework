@@ -77,7 +77,6 @@ function run(event)
 	lastMenuEvent = getTime()
 	collectgarbage()
 	run_ui(event)
-	VTX_POWER = run_ui.VTX_POWER
 	return 0
 end
 

@@ -1,7 +1,7 @@
 KB_SCRIPT_HOME = "/SCRIPTS/TELEMETRY/KB"
 
-local helper = assert(loadScript(KB_SCRIPT_HOME.."/basics.luac"))()
-local widgets = assert(loadScript(KB_SCRIPT_HOME.."/widgets.luac"))()
+local helper = assert(loadScript(KB_SCRIPT_HOME.."/basics.lua"))()
+local widgets = assert(loadScript(KB_SCRIPT_HOME.."/widgets.lua"))()
 local vtx = nil
 
 
@@ -529,7 +529,7 @@ function screen1(event)
   if widgets == nil then
     vtx = nil
     collectgarbage()
-    widgets = assert(loadScript(KB_SCRIPT_HOME.."/widgets.luac"))()
+    widgets = assert(loadScript(KB_SCRIPT_HOME.."/widgets.lua"))()
   end
   if type(telemetry.gps.value) == "table" then
     lcd.drawText(30, 44, helper.round(telemetry.gps.value["lat"], 4) .. " N ", 0) 
@@ -556,7 +556,7 @@ function screen2(event)
   if vtx == nil then
     widgets = nil
     collectgarbage()
-    vtx =  assert(loadScript("/SCRIPTS/TELEMETRY/vtx.luac"))()
+    vtx =  assert(loadScript("/SCRIPTS/TELEMETRY/vtx.lua"))()
   end
   vtx.run(event)
 
@@ -572,8 +572,8 @@ function screen3(event)
   if widgets == nil then
     vtx = nil
     collectgarbage()
-    --helper = assert(loadScript(KB_SCRIPT_HOME.."/basics.luac"))()
-    widgets = assert(loadScript(KB_SCRIPT_HOME.."/widgets.luac"))()
+    --helper = assert(loadScript(KB_SCRIPT_HOME.."/basics.lua"))()
+    widgets = assert(loadScript(KB_SCRIPT_HOME.."/widgets.lua"))()
   end
 
   local screen = menu.items[menu.currentItem]
@@ -589,7 +589,7 @@ function screen4(event)
   if widgets == nil then
     vtx = nil
     collectgarbage()
-    widgets = assert(loadScript(KB_SCRIPT_HOME.."/widgets.luac"))()
+    widgets = assert(loadScript(KB_SCRIPT_HOME.."/widgets.lua"))()
   end
 
   local screen = menu.items[menu.currentItem]

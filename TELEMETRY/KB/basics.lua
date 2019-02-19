@@ -32,22 +32,36 @@ local function drawShape(x, y, shape, rotation)
         SOLID, FORCE
       )
     end
-  end
+end
 
 
-  local function drawShape2(x, y, shape, rotation, scale)
-    sinShape = math.sin(rotation)
-    cosShape = math.cos(rotation)
-    for index, point in pairs(shape) do
-      lcd.drawLine(
-        x + scale * math.floor(point[1] * cosShape - point[2] * sinShape + 0.5),
-        y + scale * math.floor(point[1] * sinShape + point[2] * cosShape + 0.5),
-        x + scale * math.floor(point[3] * cosShape - point[4] * sinShape + 0.5),
-        y + scale * math.floor(point[3] * sinShape + point[4] * cosShape + 0.5),
-        SOLID, FORCE
-      )
-    end
+local function drawShape2(x, y, shape, rotation, scale)
+  sinShape = math.sin(rotation)
+  cosShape = math.cos(rotation)
+  for index, point in pairs(shape) do
+    lcd.drawLine(
+      x + scale * math.floor(point[1] * cosShape - point[2] * sinShape + 0.5),
+      y + scale * math.floor(point[1] * sinShape + point[2] * cosShape + 0.5),
+      x + scale * math.floor(point[3] * cosShape - point[4] * sinShape + 0.5),
+      y + scale * math.floor(point[3] * sinShape + point[4] * cosShape + 0.5),
+      SOLID, FORCE
+    )
   end
+end
+
+local function drawShape2Scrolled(x, y, yScrollPos, shape, rotation, scale)
+  sinShape = math.sin(rotation)
+  cosShape = math.cos(rotation)
+  for index, point in pairs(shape) do
+    lcd.drawLine(
+      x + scale * math.floor(point[1] * cosShape - point[2] * sinShape + 0.5),
+      y - yScrollPos + scale * math.floor(point[1] * sinShape + point[2] * cosShape + 0.5),
+      x + scale * math.floor(point[3] * cosShape - point[4] * sinShape + 0.5),
+      y - yScrollPos + scale * math.floor(point[3] * sinShape + point[4] * cosShape + 0.5),
+      SOLID, FORCE
+    )
+  end
+end
 
 
   local function drawLineScrolled(x,y,x2,y2,pattern, flags, yScrollPos)
@@ -64,6 +78,7 @@ local function drawShape(x, y, shape, rotation)
   helper.round = round
   helper.drawShape = drawShape
   helper.drawShape2 = drawShape2
+  helper.drawShape2Scrolled = drawShape2Scrolled
   helper.drawLineScrolled = drawLineScrolled
   helper.drawTextScrolled = drawTextScrolled
 
