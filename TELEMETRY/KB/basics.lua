@@ -15,6 +15,17 @@ local function round(num, idp)
 end
 
 
+--###############################################################
+-- Metrics conversion 
+--###############################################################
+SPEED = { KMH=1, MPS=0.277778, KNOT=0.539957, MPH=0.621371 }
+DISTANCE = { KM=1, M=1000, FEET=3280.84, MILE=0.621371 }
+
+local function convert(value, fromMetric, toMetric)
+  return value*toMetric / fromMetric
+end
+
+
 -- ###############################################################
 -- Helper method to draw a shape
 -- Shape is an array of lines
