@@ -110,6 +110,9 @@ local function cleanup()
 	clearTable(protocol)
 	clearTable(MenuBox)
 	clearTable(SaveBox)
+	clearTable(Page)
+	clearTable(NoTelem)
+	
 	collectgarbage()
 end
 

@@ -3,6 +3,46 @@ if helper == nil then
 end
 
 
+local function drawLetterA(x,y)
+  lcd.drawPoint(x+1,y)
+  lcd.drawPoint(x,y+1)
+  lcd.drawPoint(x,y+2)
+  lcd.drawPoint(x,y+3)
+  lcd.drawPoint(x+2,y+1)
+  lcd.drawPoint(x+2,y+2)
+  lcd.drawPoint(x+2,y+3)
+  lcd.drawPoint(x+1,y+2)
+end
+
+local function drawLetterV(x,y)
+  lcd.drawPoint(x,y)
+  lcd.drawPoint(x,y+1)
+  lcd.drawPoint(x,y+2)
+  lcd.drawPoint(x+1,y+3)
+  lcd.drawPoint(x+2,y+2)
+  lcd.drawPoint(x+2,y+1)
+  lcd.drawPoint(x+2,y)
+end
+
+local function drawPercent(x,y)
+  lcd.drawPoint(x,y)
+  lcd.drawLine(x,y+3,x+3,y,SOLID, FORCE)
+  lcd.drawPoint(x+3,y+3)
+end
+
+local function drawLetterW(x,y)
+  lcd.drawPoint(x,y)
+  lcd.drawPoint(x,y+1)
+  lcd.drawPoint(x,y+2)
+  lcd.drawPoint(x+1,y+3)
+  lcd.drawPoint(x+2,y+2)
+  lcd.drawPoint(x+3,y+3)
+  lcd.drawPoint(x+4,y+2)
+  lcd.drawPoint(x+4,y+1)
+  lcd.drawPoint(x+4,y)
+end
+
+
 local function clearTable(t)
     if type(t)=="table" then
         for i,v in pairs(t) do
@@ -23,9 +63,9 @@ end
 local function drawFilledRoundedRectangleScrolled(x,y, width, height, yScrollPos)
     if yScrollPos == nil then yScrollPos = 0 end
     lcd.drawPoint(x,y - yScrollPos);
-    lcd.drawPoint(x,y+height-1 - yScrollPos);
-    lcd.drawPoint(x+width-1,y - yScrollPos);
-    lcd.drawPoint(x+width-1,y+height-1 - yScrollPos);
+    lcd.drawPoint(x,y+height-1 - yScrollPos)
+    lcd.drawPoint(x+width-1,y - yScrollPos)
+    lcd.drawPoint(x+width-1,y+height-1 - yScrollPos)
     lcd.drawFilledRectangle(x, y - yScrollPos, width, height)
 end
 
@@ -51,7 +91,7 @@ local function DrawBatteryLevel(battBarX, battBarY, barWidth, battBarMax, batter
     elseif cellVoltage == nil then
         batterStatusValue = helper.round(batteryPercent) .. "%"
     else
-        batterStatusValue = helper.round(cellVoltage, 2) .. "V"
+        batterStatusValue = helper.round(cellVoltage, 2)
     end
   
     local battBarHeight = helper.round(battBarMax * batteryPercent / 100);
@@ -59,13 +99,23 @@ local function DrawBatteryLevel(battBarX, battBarY, barWidth, battBarMax, batter
       lcd.drawText(battBarX + 2, battBarMax + battBarY + 2 - battBarHeight, "FULL", SMLSIZE)
     elseif batteryPercent > 20 and batterStatusValue ~= nil then
       lcd.drawText(battBarX + 2, battBarMax + battBarY + 2 - battBarHeight, batterStatusValue, SMLSIZE)
+      if cellVoltage then 
+        drawLetterV(lcd.getLastRightPos(), battBarMax + battBarY + 4 - battBarHeight)
+      else
+        drawPercent(lcd.getLastRightPos(), battBarMax + battBarY + 4 - battBarHeight)
+      end
     elseif batterStatusValue ~= nil then
       lcd.drawText(battBarX + 2, battBarY + battBarMax - 6 - battBarHeight, batterStatusValue, SMLSIZE)
+      if cellVoltage then 
+        drawLetterV(lcd.getLastRightPos(), battBarY + battBarMax - 4 - battBarHeight)
+      else
+        drawPercent(lcd.getLastRightPos(), battBarY + battBarMax - 4 - battBarHeight)
+      end
     end
     
-    --if data.showBattType == true then
-      --lcd.drawText(battBarX + 5, battBarMax + battBarY - 18,  cellCount .. "S", DBLSIZE)
-    --end
+    if cellCount ~= nil and battBarHeight > 20 then
+      lcd.drawText(battBarX + 5, battBarMax + battBarY - 12,  cellCount .. "S", MIDSIZE)
+    end
     lcd.drawFilledRectangle(battBarX + 1, battBarMax + battBarY + 1 - battBarHeight, barWidth-2, battBarHeight)
 end
 
@@ -105,16 +155,15 @@ end
 --###############################################################
 local function DrawDistanceAndHeading(x, y, heading, distance, measure)
     local homeShape2 = {
-      { 0, -6, -5,  0},
-      {-5,  0,  -2,  0},
-      {-2,  0,  -2,  6},
-      { -2,  6,  2,  6},
-      { 2,  6,  2, 0},
-      { 2,  0,  5, 0},
-      { 5,  0,  0, -6}
+      {0,-6,3,6},
+      {3,6,0,3},
+      {0,3,-3,6},
+      {-3,6,0,-6}
     }
-    helper.drawShape(x, y, homeShape2, math.rad(heading))
-    lcd.drawText(x+8, y-5, distance .. measure, MIDSIZE)
+    if heading == nil then heading = 0 end
+    helper.drawShape2(x, y, homeShape2, math.rad(heading), 0.7)
+    if distance == nil then distance = "--" end
+    lcd.drawText(x+6, y-2, distance .. measure, SMLSIZE)
     clearTable(homeShape2)
 end
 
@@ -132,6 +181,7 @@ local function DrawAltitude(x, y, alt, measure)
       {6,-7, 9,0},
       {2,0, -2, -4}
     }
+    if alt == nil then alt = 0 end
     helper.drawShape2Scrolled(x, y + 10, 0, mountainShape, 0, 1)
     lcd.drawText(x + 11, y, alt .. measure, MIDSIZE)
     clearTable(mountainShape)
@@ -140,7 +190,7 @@ end
 --###############################################################
 -- Draw a mountain shape and altitude in meters - small
 --###############################################################
-local function DrawAltitudSmall(x, y, alt, measure)
+local function DrawAltitudeSmall(x, y, alt, measure)
   local mountainShape = {
     {-4, 0, -2, -4},
     {-2, -4, -1, -3},
@@ -150,8 +200,13 @@ local function DrawAltitudSmall(x, y, alt, measure)
     {6,-7, 9,0},
     {2,0, -2, -4}
   }
-  helper.drawShape2Scrolled(x, y+5, 0, mountainShape, 0, 0.5)
-  lcd.drawText(x + 6, y, alt .. measure, SMLSIZE)
+  if alt == nil then 
+    alt = 0
+  else
+    alt = helper.round(alt)
+  end
+  helper.drawShape2Scrolled(x, y+5, 0, mountainShape, 0, 0.7)
+  lcd.drawText(x+8, y, alt .. measure, SMLSIZE)
   clearTable(mountainShape)
 end
 
@@ -200,58 +255,28 @@ end
 -- number of satellites blink until a fix has been established
 -- when a 2D or 3D fix is established, satellite number stops to blink
 --###############################################################
-local function DrawGpsFix(gpslock, satcount)
-    local satelliteDish = {
-      -- disk
-      {2,-8,1,-11},
-      {1,-11,1,-15},
-      {1,-15,2,-16},
-      {2,-16,3,-17},
-      {3,-17,4,-18},
-      {4,-18,5,-19},
-      {5,-19,6,-19},
-      {6,-19,7,-18},
-      {7,-18,8,-18},
-      {8,-18,9,-17},
-      {9,-17,10,-17},
-      {10,-17,11,-16},
-      {16,-11,17,-9},
-      {17,-9,17,-5},
-      {17,-5,16,-4},
-      {16,-4,14,-3},
-      {14,-3,12,-3},
-      {12,-3,11,-2},
-      {11,-2,6,-4},
-      {6,-4,2,-8},
-      {16,-4,10,-5},
-      {10,-5,6,-7},
-      {6,-7,4,-11},
-      {4,-11,3,-16},
-      {8,-2,7,-2},
-      --base
-      {3,-1,14,-1},
-      {3,0,14,0},
-      -- reciever
-      {7,-14,13,-14},
-      {8,-10,13,-14},
-      {12,-8,13,-14},
-      {13,-13,14,-13},
-      {14,-13,14,-14},
-      {14,-14,13,-14},
-      {13,-14,13,-13},
-      {13,-15,12,-15}
-    }
+local function DrawGpsFix(x, y, yScrollPos, gpslock, satcount)
+  lcd.drawFilledRectangle(x, y-yScrollPos, 4, 3)
+  lcd.drawFilledRectangle(x+4, y-1-yScrollPos, 4, 6)
+  lcd.drawFilledRectangle(x+8, y-yScrollPos, 4, 3)
+  lcd.drawLine(x+3, y+6-yScrollPos, x+8, y+6-yScrollPos, SOLID, FORCE)
+  lcd.drawLine(x+2, y+8-yScrollPos, x+9, y+8-yScrollPos, SOLID, FORCE)
   
-    helper.drawShape(28, 35, satelliteDish, 0)
-    if gpslock > 1 then
-      lcd.drawText(43, 15, satcount, SMLSIZE)
-    else
-      lcd.drawText(43, 15, satcount, SMLSIZE + BLINK)
-    end
-
-    clearTable(satelliteDish)
+  --helper.drawShape2(30, 12, satelliteDish, 0, 2)
+  if gpslock ~= nil and satcount ~= nil and gpslock > 1 then
+    lcd.drawText(x+11, y+4-yScrollPos, satcount, SMLSIZE)
+  else
+    lcd.drawText(x+11, y+4-yScrollPos, satcount, SMLSIZE + BLINK)
   end
 
+end
+
+
+
+
+--###############################################################
+-- Draw VTX band channel and power
+--###############################################################
 local function DrawVtxData(x,y, yScrollPos, band, channel, power, pit) 
   local tvShape = {
     -- disk
@@ -263,17 +288,61 @@ local function DrawVtxData(x,y, yScrollPos, band, channel, power, pit)
     {12,0,20,-5}
   }
 
+  
+  if band == nil then band = "-" end
+  if channel == nil then channel = "-" end
   helper.drawShape(x, y - yScrollPos, tvShape, yScrollPos)
   lcd.drawText(x+4, y + 3 - yScrollPos, band .. " : " .. channel, SMLSIZE)
-  if power < 999 then
-    lcd.drawText(x+2, y + 11 - yScrollPos, power .. "m", SMLSIZE)
-  else 
-    lcd.drawText(x+4, y + 11 - yScrollPos, helper.round(power / 1000, 1) .. "W", SMLSIZE)
-  end
+  if power == nil then power = 0 end
+  lcd.drawText(x+2, y + 11 - yScrollPos, power .. "m", SMLSIZE)
   clearTable(tvShape)
 end
 
 
+--###############################################################
+-- Draw current bar with increasing maximum
+--###############################################################
+local function DrawValueBar(x, y, yScrollPos, width, height, currentValue, valueMax, measure)
+  if currentValue == nil then return end
+  local valueMaxRound = valueMax --helper.round(valueMax / 20) * 20
+  lcd.drawRectangle(x, y - yScrollPos, width, height)
+  local currentValueHeight = helper.round(currentValue / valueMaxRound * (height - 2))
+  local maxHeight = helper.round(valueMax / valueMaxRound * (height - 2))
+  local lefttextOffset = width + 2
+  if width > 15 then lefttextOffset = 1 end
+  -- draw max
+  --lcd.drawLine(x,y - 1 + height - maxHeight, x + width + lefttextOffset - 2, y - 1 + height - maxHeight, SOLID, FORCE)
+  lcd.drawText(x+lefttextOffset, y - 9 + height - maxHeight, helper.round(valueMax), SMLSIZE)
+  if measure == "A" then
+    drawLetterA(lcd.getLastRightPos(), y - 7 + height - maxHeight)
+  elseif measure == "V" then
+    drawLetterV(lcd.getLastRightPos(), y - 7 + height - maxHeight)
+  elseif measure == "W" then
+    drawLetterW(lcd.getLastRightPos(), y - 7 + height - maxHeight)
+  else
+    lcd.drawText(lcd.getLastRightPos(), y - 7 + height - maxHeight, measure, SMLSIZE)
+  end
+  -- draw current value number
+  if maxHeight - currentValueHeight > 10 then
+    lcd.drawText(x+lefttextOffset, y - 8 + height - currentValueHeight, helper.round(currentValue), SMLSIZE)
+  end
+  -- draw current value bar
+  lcd.drawFilledRectangle(x+1, y - 1 + height - currentValueHeight, width - 2, currentValueHeight)
+end
+
+
+--###############################################################
+-- Draw timer
+--###############################################################
+local function drawTimer(x, y, timer, label)
+  if label ~= nil then
+    lcd.drawText(x+3, y+1, label, SMLSIZE)
+    lcd.drawFilledRectangle(x, y, lcd.getLastRightPos() - x + 2, 8)
+    lcd.drawText(x, y+8, timer, MIDSIZE)
+  else
+    lcd.drawText(x, y, timer, MIDSIZE)
+  end
+end
 
 
 
@@ -290,12 +359,14 @@ widgets.DrawBatteryLevel = DrawBatteryLevel
 widgets.DrawVerticalRssi2 = DrawVerticalRssi2
 widgets.DrawDistanceAndHeading = DrawDistanceAndHeading
 widgets.DrawAltitude = DrawAltitude
-widgets.DrawAltitudSmall = DrawAltitudSmall
+widgets.DrawAltitudeSmall = DrawAltitudeSmall
 widgets.DrawFlightModeChar = DrawFlightModeChar
 widgets.DrawRescueMode = DrawRescueMode
 widgets.DrawGpsFix = DrawGpsFix
 widgets.DrawVtxData = DrawVtxData
 widgets.cleanup = cleanup
+widgets.DrawValueBar = DrawValueBar
+widgets.drawTimer = drawTimer
 
 
 

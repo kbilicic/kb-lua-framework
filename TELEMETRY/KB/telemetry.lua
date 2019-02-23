@@ -17,6 +17,11 @@ end
 function TelemetryValue:refreshValue()
   if(self.id ~= nil and self.id > 0 and not(calc)) then
     self.value = getValue(self.id)
+    if type(self.value) ~= "table" then
+      if self.minValue == nil or self.value < self.minValue then self.minValue = self.value end
+      if self.maxValue == nil or self.value > self.maxValue then self.maxValue = self.value end
+      --print(self.name .. ": " .. self.value .. ",   max: " .. self.maxValue)
+    end
   else
     self.value = nil
   end
@@ -51,6 +56,7 @@ local telemetry = {}
     telemetry.battsum = TelemetryValue:new('VFAS', 'Battery')
     telemetry.a4      = TelemetryValue:new('A4',   'Cell voltage')
     telemetry.current = TelemetryValue:new('Curr', 'Current')
+    telemetry.mah     = TelemetryValue:new('mAh',  'mAh')
     telemetry.rssi    = TelemetryValue:new('RSSI', 'RSSI')
     telemetry.galt    = TelemetryValue:new('GAlt', 'GPS altitude')
     telemetry.alt     = TelemetryValue:new('Alt',  'Altitude')
@@ -59,9 +65,17 @@ local telemetry = {}
     telemetry.heading = TelemetryValue:new('Hdg',  'Heading')
     telemetry.tmp2    = TelemetryValue:new('Tmp2', 'Tmp2')
     telemetry.tmp1    = TelemetryValue:new('Tmp1', 'Tmp1')
+    telemetry.rpm     = TelemetryValue:new('RPM',  'RPM')
 
 
 local data = {}
+    data.armed = false
+    data.armedAtMs = nil
+    data.disarmedAtMs = nil
+    data.armedTimer = "00:00"
+    data.power = 0
+    data.maxpower = 0
+    data.mode = "-"
     data.cellCount =  0
     data.maxVoltage = 0
     data.cellVoltage =0
@@ -98,6 +112,35 @@ local function CalculateGpsLock()
     end
 end
 
+
+--###############################################################
+-- calculate gps lock and satelite count
+--###############################################################
+local function CalculateModeArmedTimer()
+  local previousState = data.armed
+  if telemetry.tmp1.value ~= nil then
+    local status = telemetry.tmp1.value % 10
+    data.armed = status == 5 
+    status = helper.round((telemetry.tmp1.value - 1) / 10) % 1000
+    if status == 0 then
+      data.mode = "ACRO"
+    elseif status == 1 then
+      data.mode = "STAB"
+    elseif status == 2 then
+      data.mode = "HOVER"
+    end
+  else
+    data.armed = false
+    data.mode = "-"
+  end
+  if data.armed and previousState == false then
+    data.armedAtMs = getTime()
+  end
+  if data.armed then
+    local seconds = (getTime() - data.armedAtMs) * 0.01
+    data.armedTimer = string.format("%02d:%02d",math.floor(seconds / 60), seconds % 60)
+  end
+end
 
 
 
@@ -172,7 +215,7 @@ local function CalculateBatteryTypeAndStatus()
 -- Determine compass orientation based on heading data
 --###############################################################
 local function CalculateHeadingOrientation()
-    if telemetry.heading.value < 0 or telemetry.heading.value > 360 then data.headingOrt="Err"  
+    if telemetry.heading.value ~= nil and telemetry.heading.value < 0 or telemetry.heading.value > 360 then data.headingOrt="Err"  
       elseif telemetry.heading.value <  22.5  then data.headingOrt="N"     
       elseif telemetry.heading.value <  67.5  then data.headingOrt="NE" 
       elseif telemetry.heading.value <  112.5 then data.headingOrt="E"  
@@ -194,6 +237,11 @@ local function refreshTelemetryAndRecalculate()
     CalculateGpsData()
     CalculateBatteryTypeAndStatus()
     CalculateHeadingOrientation()
+    CalculateModeArmedTimer()
+    if telemetry.current.value ~= nil and telemetry.battsum.value ~= nil then
+      data.power = helper.round(telemetry.current.value * telemetry.battsum.value)
+      if data.power > data.maxpower then data.maxpower = data.power end
+    end
     collectgarbage()
 end
 

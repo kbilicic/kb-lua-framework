@@ -1,8 +1,8 @@
 KB_SCRIPT_HOME = "/SCRIPTS/TELEMETRY/KB"
 
-local helper = assert(loadScript(KB_SCRIPT_HOME.."/basics.lua"))()
-local widgets = assert(loadScript(KB_SCRIPT_HOME.."/widgets.lua"))()
-local frsky = assert(loadScript(KB_SCRIPT_HOME.."/telemetry.lua"))()
+local helper = assert(loadScript(KB_SCRIPT_HOME.."/basics.luac"))()
+local widgets = assert(loadScript(KB_SCRIPT_HOME.."/widgets.luac"))()
+local frsky = assert(loadScript(KB_SCRIPT_HOME.."/telemetry.luac"))()
 local vtx = nil
 
 local function loadScriptIfNeeded(var, location)
@@ -19,25 +19,14 @@ local screenWidth = LCD_W
 local scrollBarHeight = 20
 local yScrollSpeed = 5
 local scrollBarWidth = 2
-local titleBarHeight = 10
+local titleBarHeight = 8
 local yScrollPossition = 0
-local vtxPowerOptionsList = {
-  { 25 },
-  { 25, 200 },
-  { 25, 100, 200 },
-  { 25, 200, 500 },
-  { 25, 100, 200, 500 },
-  { 25, 200, 400, 800 },
-  { 25, 200, 400, 600, 800 },
-  { 25, 200, 400, 800 },
-  { 25, 200, 500, 800 }
-}
-local settings = {
-  { 
-    modelName = 'default',
-    vtxPowerOptions = { 25, 200, 400, 600, 800 }
-  }
-}
+--local settings = {
+  --{ 
+    --modelName = 'default',
+    --vtxPowerOptions = { 25, 200, 400, 600, 800 }
+  --}
+--}
 
 --local function getCurrentModelSettings(modelName) 
   --for
@@ -56,7 +45,7 @@ menu.previousItem = 1 -- main menu previous selected item
 local function DrawTitleBar(cellCount, battsum, cellVoltage, otherData)
   modelname = model.getInfo()
 
-  lcd.drawFilledRectangle(0, 0, screenWidth , 9, ERASE)
+  lcd.drawFilledRectangle(0, 0, screenWidth , titleBarHeight, ERASE)
   
   if cellCount ~= nil then
     lcd.drawText(2, 1,  cellCount .. "S", SMLSIZE)
@@ -65,9 +54,6 @@ local function DrawTitleBar(cellCount, battsum, cellVoltage, otherData)
     lcd.drawText(lcd.getLastRightPos() + 3, 1,  helper.round(battsum,1) .. "V", SMLSIZE)
   end
 
-  if cellVoltage ~= nil and cellVoltage > 0 then
-    lcd.drawText(lcd.getLastRightPos() + 3, 1,  cellVoltage .. "V", SMLSIZE)
-  end
   if modelname ~= nil and type(modelname) == "table" then
     lcd.drawText(screenWidth-2, 1, modelname["name"], SMLSIZE + RIGHT)
   end
@@ -78,7 +64,7 @@ local function DrawTitleBar(cellCount, battsum, cellVoltage, otherData)
 
   --lcd.drawText(50, 1, "Imp: " .. radioSettings['imperial'], SMLSIZE)
   -- draw title bar background
-  lcd.drawFilledRectangle(0, 0, screenWidth , 9)
+  lcd.drawFilledRectangle(0, 0, screenWidth , titleBarHeight)
 end
 
 
@@ -168,30 +154,35 @@ function screen1(event)
   end
   collectgarbage()
 
-  widgets = loadScriptIfNeeded(widgets, "/widgets.lua")
-  frsky = loadScriptIfNeeded(frsky, "/telemetry.lua")
+  widgets = loadScriptIfNeeded(widgets, "/widgets.luac")
+  frsky = loadScriptIfNeeded(frsky, "/telemetry.luac")
 
   frsky.refreshTelemetryAndRecalculate()
-
-  widgets.DrawVerticalRssi2(frsky.telemetry.rssi.value, screenWidth-28, 8, 2, 7, 17, 1.9)
-  widgets.DrawDistanceAndHeading(60,18, frsky.telemetry.heading.value, frsky.data.gps_hori_Distance, "m");
-  widgets.DrawAltitude(58,26,helper.round(frsky.telemetry.galt.value), "m")
-  --DrawFlightMode(97,54,"ACRO")
-  widgets.DrawFlightModeChar(107, 49, "ACRO", false, 0)
-  widgets.DrawRescueMode(88,47, 0)
-  widgets.DrawGpsFix(frsky.data.gpslock, frsky.data.satcount)
   widgets.DrawBatteryLevel(1,13,25,47, frsky.data.batteryPercent, frsky.data.cellCount, frsky.data.cellVoltage)
-
+  widgets.DrawVerticalRssi2(frsky.telemetry.rssi.value, screenWidth-28, 8, 2, 7, 17, 1.8)
+  
+  widgets.DrawGpsFix(30, 12, 0, frsky.data.gpslock, frsky.data.satcount)
+  widgets.DrawDistanceAndHeading(57,16, frsky.telemetry.heading.value, frsky.data.gps_hori_Distance, "m");
+  widgets.DrawAltitudeSmall(lcd.getLastRightPos() + 6,14, frsky.telemetry.alt.value, "m")
+  widgets.DrawFlightModeChar(107, 49, frsky.data.mode, frsky.data.armed, 0)
+  --widgets.DrawRescueMode(88,47, 0)
+  --DrawFlightMode(97,54,"ACRO")
+  
   -- draw coordinates
   if frsky.telemetry.gps.value ~= nil and type(frsky.telemetry.gps.value) == "table" then
-    lcd.drawText(30, 44, helper.round(frsky.telemetry.gps.value["lat"], 4) .. " N ", 0)
-    lcd.drawText(30, 54, helper.round(frsky.telemetry.gps.value["lon"], 4) .. " E ", 0)
+    lcd.drawText(31, 47, "Lat " .. helper.round(frsky.telemetry.gps.value["lat"], 4) .. " N ", SMLSIZE)
+    lcd.drawText(31, 55, "Lon " .. helper.round(frsky.telemetry.gps.value["lon"], 4) .. " E ", SMLSIZE)
+    lcd.drawFilledRectangle(28,46,18,16)
   end
+
+  widgets.drawTimer(50,25, frsky.data.armedTimer, nil)
 
   if VTX_POWER == nil then
     VTX_POWER = "n/a"
   end
+  
   DrawTitleBar(frsky.data.cellCount, frsky.telemetry.battsum.value, frsky.data.cellVoltage)
+  --print("DrawTitleBar")
 end
 
 
@@ -208,18 +199,21 @@ function screenRace(event)
   end
   collectgarbage()
 
-  widgets = loadScriptIfNeeded(widgets, "/widgets.lua")
-  frsky = loadScriptIfNeeded(frsky, "/telemetry.lua")
+  widgets = loadScriptIfNeeded(widgets, "/widgets.luac")
+  frsky = loadScriptIfNeeded(frsky, "/telemetry.luac")
 
   frsky.refreshTelemetryAndRecalculate()
 
-  widgets.DrawVerticalRssi2(frsky.telemetry.rssi.value, screenWidth-28, 18, 2, 7, 14, 1.9)
-  widgets.DrawAltitudSmall(100,10,helper.round(frsky.telemetry.galt.value), "m")
+  widgets.DrawVerticalRssi2(frsky.telemetry.rssi.value, screenWidth-28, 8, 2, 7, 17, 2.1)
   --DrawFlightMode(97,54,"ACRO")
-  widgets.DrawFlightModeChar(107, 49, "ACRO", false, 0)
-  widgets.DrawRescueMode(88,47, 0)
+  
   widgets.DrawBatteryLevel(1,13,25,47, frsky.data.batteryPercent, frsky.data.cellCount, frsky.data.cellVoltage)
-  widgets.DrawVtxData(28,41,0,"A", 6, 200)
+  widgets.DrawValueBar(28, 20, 0, 22, 41, frsky.telemetry.current.value, frsky.telemetry.current.maxValue, "A")
+  widgets.DrawValueBar(52, 20, 0, 22, 41, frsky.data.power, frsky.data.maxpower, "W")
+  
+  widgets.DrawVtxData(78,41,0,VTX_BAND, VTX_CHANNEL, VTX_POWER)
+  widgets.DrawFlightModeChar(107, 49, frsky.data.mode, frsky.data.armed, 0)
+  --widgets.DrawRescueMode(88,47, 0)
   
   if VTX_POWER == nil then
     VTX_POWER = "n/a"
@@ -245,30 +239,14 @@ function screen2(event)
   end
   collectgarbage()
 
-  vtx = loadScriptIfNeeded(vtx, "/vtx.lua")
+  vtx = loadScriptIfNeeded(vtx, "/vtx.luac")
 
   vtx.run(event)
 
   DrawTitleBar2("VTX settings")
 end
 
--- ###############################################################
--- Draw screen 3
--- ###############################################################  
-function screen3(event)
-  local screen = menu.items[menu.currentItem]
 
-  drawYScrollBar(screen.height, screen.yScrollPosition)
-  DrawTitleBar2("New screen")
-end
-
-
-function screen4(event)
-  local screen = menu.items[menu.currentItem]
-
-  drawYScrollBar(screen.height, screen.yScrollPosition)
-  DrawTitleBar2("New screen")
-end
 
 -- to add new screen create a method and add new option to menu, equivalent to screen1, screen2 and screen3
 -- EXAMPLE (screen no.5):
@@ -300,25 +278,7 @@ item3.height = 64
 item3.drawToScreen = screen2
 item3.yScrollPosition = 0
 
-local item4 = {}
-item4.name = "Stats"
-item4.height = 128
-item4.drawToScreen = screen3
-item4.yScrollPosition = 0
-
-local item5 = {}
-item5.name = "Stats2"
-item5.height = 128
-item5.drawToScreen = screen3
-item5.yScrollPosition = 0
-
-local item6 = {}
-item6.name = "OPTIONS"
-item6.height = 128
-item6.drawToScreen = screen4
-item6.yScrollPosition = 0
-
-menu.items = { item1, item2, item3, item4, item5, item6 } -- item5 for screen no.4 should be added after item4
+menu.items = { item1, item2, item3 } -- item5 for screen no.4 should be added after item4
 
 -- ###############################################################
 -- Main draw method                      
