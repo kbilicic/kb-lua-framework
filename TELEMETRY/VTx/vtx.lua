@@ -173,15 +173,15 @@ return {
 	updatePowerTable = function(self)
 		if self.values and not self.fields[3].table then
 			if self.values[1] == 1 then          -- RTC6705
-				self.fields[3].table = { 25, 200 }
+				self.fields[3].table = selectedVtxPowerTable  -- { 25, 200 }
 				self.fields[3].max = 2
 				self.fields[4].t = nil       -- don't display Pit field
 				self.fields[4].table = { [0]="", "" }
 			elseif self.values[1] == 3 then      -- SmartAudio
-				self.fields[3].table = { 25, 200, 500, 800 }
+				self.fields[3].table = selectedVtxPowerTable  -- { 25, 200, 500, 800 }
 				self.fields[3].max = 4
 			elseif self.values[1] == 4 then      -- Tramp
-				self.fields[3].table = { 25, 100, 200, 400, 600 }
+				self.fields[3].table = selectedVtxPowerTable  --  { 25, 100, 200, 400, 600 }
 				self.fields[3].max = 5
 			end
 		end

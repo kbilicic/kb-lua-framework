@@ -248,6 +248,32 @@ function screen2(event)
 end
 
 
+-- ###############################################################
+-- Draw screen 2
+-- ###############################################################  
+function drawSettings(event)
+  local screen = menu.items[menu.currentItem]
+  if widgets ~= nil then
+    widgets.cleanup()
+    widgets = nil
+  end
+  if frsky ~= nil then
+    frsky.cleanup()
+    frsky = nil
+  end
+  collectgarbage()
+  settings = loadScriptIfNeeded(settings, "/settings.lua")
+
+
+  settings.drawVtxOptions(10,12,screen.yScrollPosition, event)
+  if settings.currentModelConfig  ~= nil then
+    selectedVtxPowerTable = settings.currentModelConfig.vtxPower
+  end
+
+  DrawTitleBar2("VTX power levels")
+end
+
+
 
 -- to add new screen create a method and add new option to menu, equivalent to screen1, screen2 and screen3
 -- EXAMPLE (screen no.5):
@@ -279,7 +305,13 @@ item3.height = 64
 item3.drawToScreen = screen2
 item3.yScrollPosition = 0
 
-menu.items = { item1, item2, item3 } -- item5 for screen no.4 should be added after item4
+local itemSettings = {}
+itemSettings.name = "Settings"
+itemSettings.height = 240
+itemSettings.drawToScreen = drawSettings
+itemSettings.yScrollPosition = 0
+
+menu.items = { item1, item2, item3, itemSettings } -- item5 for screen no.4 should be added after item4
 
 -- ###############################################################
 -- Main draw method                      
@@ -394,6 +426,11 @@ end
 -- run once on script load
 --------------------------------------------------------------------------------
 local function init()
+  -- save config to a file
+  
+  -- load settings
+  --config2 = loadfile(KB_SCRIPT_HOME .. "/settings.config")()
+  --print("" .. config2.models[1].modelName)
   
 end
 
