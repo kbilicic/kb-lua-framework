@@ -4,6 +4,7 @@ local helper = assert(loadScript(KB_SCRIPT_HOME.."/basics.luac"))()
 local widgets = assert(loadScript(KB_SCRIPT_HOME.."/widgets.luac"))()
 local frsky = assert(loadScript(KB_SCRIPT_HOME.."/telemetry.luac"))()
 local vtx = nil
+selectedVtxPowerTable = { 25, 200 }
 
 local function loadScriptIfNeeded(var, location)
   if var == nil then
@@ -17,7 +18,7 @@ end
 local lcdHeight = LCD_H
 local screenWidth = LCD_W
 local scrollBarHeight = 20
-local yScrollSpeed = 5
+local yScrollSpeed = 15
 local scrollBarWidth = 2
 local titleBarHeight = 8
 local yScrollPossition = 0
@@ -71,13 +72,13 @@ end
 -- ###############################################################
 -- Page title bar
 -- ###############################################################
-local function DrawTitleBar2(data)
+local function DrawTitleBar2(textLeft)
   modelname = model.getInfo()
 
   lcd.drawFilledRectangle(0, 0, LCD_W , 9, ERASE)
   
-  if data ~= nil then
-    lcd.drawText(2, 1,  data, SMLSIZE)
+  if textLeft ~= nil then
+    lcd.drawText(2, 1,  textLeft, SMLSIZE)
   end
  
   if modelname ~= nil and type(modelname) == "table" then
@@ -326,9 +327,7 @@ local function HandleEvents(event, menu)
     end
     longMenuPress = false
   elseif menu.currentMenu == 1 and event == EVT_ENTER_BREAK then
-    if menu.currentItem ~= 4 then
-      menu.previousItem = menu.currentItem
-    end
+    menu.previousItem = menu.currentItem
     menu.currentMenu = 0
     longMenuPress = false
     return nil
@@ -336,11 +335,11 @@ local function HandleEvents(event, menu)
     menu.currentItem = menu.previousItem
     menu.currentMenu = 0
     longMenuPress = false
-  elseif menu.currentMenu == 0 and menu.currentItem == #menu.items and event == EVT_ENTER_BREAK then
+  --elseif menu.currentMenu == 0 and menu.currentItem == #menu.items and event == EVT_ENTER_BREAK then
     -- reset values to home position
-    menu.currentItem = menu.previousItem 
-    menu.currentMenu = 0
-    longMenuPress = false
+    --menu.currentItem = menu.previousItem 
+    --menu.currentMenu = 0
+    --longMenuPress = false
   elseif menu.currentMenu == 0 and menu.currentItem == #menu.items and event == EVT_EXIT_BREAK then
     menu.currentItem = menu.previousItem
     menu.currentMenu = 0
@@ -395,7 +394,7 @@ end
 -- run once on script load
 --------------------------------------------------------------------------------
 local function init()
-
+  
 end
 
 --------------------------------------------------------------------------------

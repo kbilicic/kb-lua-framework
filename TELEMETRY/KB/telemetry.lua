@@ -44,16 +44,17 @@ function TelemetryValue:new(name, label, calc)
       if o.minValue == nil or o.value < o.minValue then o.minValue = o.value end
       if o.maxValue == nil or o.value > o.maxValue then o.maxValue = o.value end
     end 
+    globalTelemetryMap[#globalTelemetryMap+1] = o;
   else
     o.value = nil
   end
-  globalTelemetryMap[#globalTelemetryMap+1] = o;
+  
   return o
 end
 --############################################################### 
 
 local telemetry = {}
-    telemetry.battsum = TelemetryValue:new('VFAS', 'Battery')
+    telemetry.battsum = TelemetryValue:new('VFAS', 'Batt voltage')
     telemetry.a4      = TelemetryValue:new('A4',   'Cell voltage')
     telemetry.current = TelemetryValue:new('Curr', 'Current')
     telemetry.mah     = TelemetryValue:new('mAh',  'mAh')
@@ -61,11 +62,16 @@ local telemetry = {}
     telemetry.galt    = TelemetryValue:new('GAlt', 'GPS altitude')
     telemetry.alt     = TelemetryValue:new('Alt',  'Altitude')
     telemetry.gspd    = TelemetryValue:new('GSpd', 'GPS speed')
+    telemetry.aspd    = TelemetryValue:new('ASpd', 'Speed')
     telemetry.gps     = TelemetryValue:new('GPS',  'GPS loc.')
     telemetry.heading = TelemetryValue:new('Hdg',  'Heading')
     telemetry.tmp2    = TelemetryValue:new('Tmp2', 'Tmp2')
     telemetry.tmp1    = TelemetryValue:new('Tmp1', 'Tmp1')
     telemetry.rpm     = TelemetryValue:new('RPM',  'RPM')
+    telemetry.RxBt     = TelemetryValue:new('RxBt',  'Rx voltage')
+    telemetry.accx     = TelemetryValue:new('AccX',  'G (x)')
+    telemetry.accy     = TelemetryValue:new('AccY',  'G (y)')
+    telemetry.accz     = TelemetryValue:new('AccZ',  'G (z)')
 
 
 local data = {}
@@ -234,9 +240,9 @@ local function refreshTelemetryAndRecalculate()
     RefreshTelemetryValues()
     -- calculations
     CalculateGpsLock()
-    CalculateGpsData()
+    --CalculateGpsData()
     CalculateBatteryTypeAndStatus()
-    CalculateHeadingOrientation()
+    --CalculateHeadingOrientation()
     CalculateModeArmedTimer()
     if telemetry.current.value ~= nil and telemetry.battsum.value ~= nil then
       data.power = helper.round(telemetry.current.value * telemetry.battsum.value)

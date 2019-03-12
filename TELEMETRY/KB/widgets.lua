@@ -3,45 +3,6 @@ if helper == nil then
 end
 
 
-local function drawLetterA(x,y)
-  lcd.drawPoint(x+1,y)
-  lcd.drawPoint(x,y+1)
-  lcd.drawPoint(x,y+2)
-  lcd.drawPoint(x,y+3)
-  lcd.drawPoint(x+2,y+1)
-  lcd.drawPoint(x+2,y+2)
-  lcd.drawPoint(x+2,y+3)
-  lcd.drawPoint(x+1,y+2)
-end
-
-local function drawLetterV(x,y)
-  lcd.drawPoint(x,y)
-  lcd.drawPoint(x,y+1)
-  lcd.drawPoint(x,y+2)
-  lcd.drawPoint(x+1,y+3)
-  lcd.drawPoint(x+2,y+2)
-  lcd.drawPoint(x+2,y+1)
-  lcd.drawPoint(x+2,y)
-end
-
-local function drawPercent(x,y)
-  lcd.drawPoint(x,y)
-  lcd.drawLine(x,y+3,x+3,y,SOLID, FORCE)
-  lcd.drawPoint(x+3,y+3)
-end
-
-local function drawLetterW(x,y)
-  lcd.drawPoint(x,y)
-  lcd.drawPoint(x,y+1)
-  lcd.drawPoint(x,y+2)
-  lcd.drawPoint(x+1,y+3)
-  lcd.drawPoint(x+2,y+2)
-  lcd.drawPoint(x+3,y+3)
-  lcd.drawPoint(x+4,y+2)
-  lcd.drawPoint(x+4,y+1)
-  lcd.drawPoint(x+4,y)
-end
-
 
 local function clearTable(t)
     if type(t)=="table" then
@@ -91,7 +52,7 @@ local function DrawBatteryLevel(battBarX, battBarY, barWidth, battBarMax, batter
     elseif cellVoltage == nil then
         batterStatusValue = helper.round(batteryPercent) .. "%"
     else
-        batterStatusValue = helper.round(cellVoltage, 2)
+        batterStatusValue = helper.round(cellVoltage, 2) .. "V"
     end
   
     local battBarHeight = helper.round(battBarMax * batteryPercent / 100);
@@ -99,18 +60,8 @@ local function DrawBatteryLevel(battBarX, battBarY, barWidth, battBarMax, batter
       lcd.drawText(battBarX + 2, battBarMax + battBarY + 2 - battBarHeight, "FULL", SMLSIZE)
     elseif batteryPercent > 20 and batterStatusValue ~= nil then
       lcd.drawText(battBarX + 2, battBarMax + battBarY + 2 - battBarHeight, batterStatusValue, SMLSIZE)
-      if cellVoltage then 
-        drawLetterV(lcd.getLastRightPos(), battBarMax + battBarY + 4 - battBarHeight)
-      else
-        drawPercent(lcd.getLastRightPos(), battBarMax + battBarY + 4 - battBarHeight)
-      end
     elseif batterStatusValue ~= nil then
       lcd.drawText(battBarX + 2, battBarY + battBarMax - 6 - battBarHeight, batterStatusValue, SMLSIZE)
-      if cellVoltage then 
-        drawLetterV(lcd.getLastRightPos(), battBarY + battBarMax - 4 - battBarHeight)
-      else
-        drawPercent(lcd.getLastRightPos(), battBarY + battBarMax - 4 - battBarHeight)
-      end
     end
     
     if cellCount ~= nil and battBarHeight > 20 then
@@ -312,16 +263,7 @@ local function DrawValueBar(x, y, yScrollPos, width, height, currentValue, value
   if width > 15 then lefttextOffset = 1 end
   -- draw max
   --lcd.drawLine(x,y - 1 + height - maxHeight, x + width + lefttextOffset - 2, y - 1 + height - maxHeight, SOLID, FORCE)
-  lcd.drawText(x+lefttextOffset, y - 9 + height - maxHeight, helper.round(valueMax), SMLSIZE)
-  if measure == "A" then
-    drawLetterA(lcd.getLastRightPos(), y - 7 + height - maxHeight)
-  elseif measure == "V" then
-    drawLetterV(lcd.getLastRightPos(), y - 7 + height - maxHeight)
-  elseif measure == "W" then
-    drawLetterW(lcd.getLastRightPos(), y - 7 + height - maxHeight)
-  else
-    lcd.drawText(lcd.getLastRightPos(), y - 7 + height - maxHeight, measure, SMLSIZE)
-  end
+  lcd.drawText(x+lefttextOffset, y - 9 + height - maxHeight, helper.round(valueMax) .. measure, SMLSIZE)
   -- draw current value number
   if maxHeight - currentValueHeight > 10 then
     lcd.drawText(x+lefttextOffset, y - 8 + height - currentValueHeight, helper.round(currentValue), SMLSIZE)
