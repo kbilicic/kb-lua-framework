@@ -191,6 +191,7 @@ function drawScreenTitle(screen_title)
 end
 
 local function getVtxValues(f)
+	if currentModelConfig == nil then currentModelConfig = {} end
 	local val = "---"
 	if f.value then
 		val = f.value
@@ -200,15 +201,16 @@ local function getVtxValues(f)
 		end
 	end
 	if f.t == "Power" then
-		VTX_POWER = val
+		currentModelConfig.selectedPower = val
 	elseif f.t == "Chan" then
-		VTX_CHANNEL = val
+		currentModelConfig.selectedChannel = val
 	elseif f.t == "Band" then
-		VTX_BAND = val
+		currentModelConfig.selectedBand = val
 	end
 end
 
 local function drawScreen()
+	Page.fields[3].table = selectedVtxPowerTable
 	local screen_title = Page.title
 	drawScreenTitle(screen_title)
 	for i=1,#(Page.text) do
@@ -218,6 +220,7 @@ local function drawScreen()
 	end
 	local val = "---"
 	for i=1,#(Page.fields) do
+		val = "---"
 		local f = Page.fields[i]
 		local text_options = (f.to or 0) + globalTextOptions
 		local heading_options = text_options
@@ -238,6 +241,14 @@ local function drawScreen()
 		else
 			spacing = 0
 		end
+		-------------------------------------------------------------------------
+		--if f.t == "Power" then
+		--	if f.upd and Page.values then
+		--		f.upd(Page)
+		--	end
+		--	val = currentModelConfig.vtxPower[6]
+		--end
+		-------------------------------------------------------------------------
 		if f.value then
 			if f.upd and Page.values then
 				f.upd(Page)
@@ -247,10 +258,17 @@ local function drawScreen()
 				-- get value from table (for example power setting)
 				val = f.table[f.value]
 				-- KB, save vtx power, band and chan to local variables
+				--if f.t == "Power" and currentModelConfig ~= nil and currentModelConfig.vtxPower ~= nil then
+				--	val = currentModelConfig.vtxPower[f.value]
+				--end
 				--getVtxValues(f)
 			end
 		end
 		-- draw setting value
+		if val == nil then 
+			val = "---"
+			--print("val was nil") 
+		end
 		lcd.drawText(f.x + spacing, f.y, val, value_options)
 	end
 end
@@ -399,7 +417,7 @@ function run_ui(event)
 		end
 	end
 	processMspReply(mspPollReply())
-	return 0
+	return Page
 end
 
 return run_ui

@@ -1,8 +1,8 @@
 KB_SCRIPT_HOME = "/SCRIPTS/TELEMETRY/KB"
 
 local helper = assert(loadScript(KB_SCRIPT_HOME.."/basics.luac"))()
-local widgets = assert(loadScript(KB_SCRIPT_HOME.."/widgets.luac"))()
-local frsky = assert(loadScript(KB_SCRIPT_HOME.."/telemetry.luac"))()
+local widgets = nil-- = assert(loadScript(KB_SCRIPT_HOME.."/widgets.luac"))()
+local frsky = nil-- = assert(loadScript(KB_SCRIPT_HOME.."/telemetry.luac"))()
 local vtx = nil
 selectedVtxPowerTable = { 25, 200 }
 
@@ -240,9 +240,9 @@ function screen2(event)
   end
   collectgarbage()
 
-  vtx = loadScriptIfNeeded(vtx, "/vtx.luac")
+  vtx = loadScriptIfNeeded(vtx, "/vtx.lua")
 
-  vtx.run(event)
+  local page = vtx.run(event)
 
   DrawTitleBar2("VTX settings")
 end
@@ -261,14 +261,14 @@ function drawSettings(event)
     frsky.cleanup()
     frsky = nil
   end
+  if vtx ~= nil then
+    vtx.cleanup()
+    vtx = nil
+  end
   collectgarbage()
-  settings = loadScriptIfNeeded(settings, "/settings.lua")
-
+  settings = loadScriptIfNeeded(settings, "/settings.luac")
 
   settings.drawVtxOptions(10,12,screen.yScrollPosition, event)
-  if settings.currentModelConfig  ~= nil then
-    selectedVtxPowerTable = settings.currentModelConfig.vtxPower
-  end
 
   DrawTitleBar2("VTX power levels")
 end
@@ -311,7 +311,7 @@ itemSettings.height = 240
 itemSettings.drawToScreen = drawSettings
 itemSettings.yScrollPosition = 0
 
-menu.items = { item1, item2, item3, itemSettings } -- item5 for screen no.4 should be added after item4
+menu.items = { item3, itemSettings, item1, item2 } -- item5 for screen no.4 should be added after item4
 
 -- ###############################################################
 -- Main draw method                      
@@ -367,11 +367,6 @@ local function HandleEvents(event, menu)
     menu.currentItem = menu.previousItem
     menu.currentMenu = 0
     longMenuPress = false
-  --elseif menu.currentMenu == 0 and menu.currentItem == #menu.items and event == EVT_ENTER_BREAK then
-    -- reset values to home position
-    --menu.currentItem = menu.previousItem 
-    --menu.currentMenu = 0
-    --longMenuPress = false
   elseif menu.currentMenu == 0 and menu.currentItem == #menu.items and event == EVT_EXIT_BREAK then
     menu.currentItem = menu.previousItem
     menu.currentMenu = 0
@@ -426,11 +421,11 @@ end
 -- run once on script load
 --------------------------------------------------------------------------------
 local function init()
-  -- save config to a file
-  
-  -- load settings
-  --config2 = loadfile(KB_SCRIPT_HOME .. "/settings.config")()
-  --print("" .. config2.models[1].modelName)
+
+  settings = loadScriptIfNeeded(settings, "/settings.luac")
+  settings.loadSettings()
+  settings = nil
+  collectgarbage()
   
 end
 

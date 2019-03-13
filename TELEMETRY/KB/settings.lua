@@ -1,8 +1,8 @@
+local configuration = nil
 local vtxAllPowerOptions = {"PIT", 25, 50, 100, 200, 400, 500, 600, 700, 800, 1000, 1200, 1500, 2000}
 local vtxPowerOptionsSel = {false,false,false,false,false,false,false,false,false,false,false,false,false,false}
 local currentSelected = 1
-local configuration
-local currentModelConfig
+local changesSaved = false
 
 local indent = ""
 local function outputTable (tbl)
@@ -58,6 +58,8 @@ local function getSelectedPowerTable()
             index = index + 1
         end
     end
+    index = nil
+    collectgarbage()
     return selectedPowerTable
 end
 
@@ -75,11 +77,12 @@ local function loadSettings()
         local defaultModel = {}
         defaultModel.modelName = "default"
         defaultModel.vtxPower = { 25 }
-        thisModel.vtxPit = false
+        defaultModel.vtxPit = false
         configuration.models["default"] = defaultModel
+        defaultModel = nil
     end
 
-    if currentModelConfig == nil or currentModelConfig ~= nil and currentModelConfig.modelName ~= modelName then
+    if changesSaved == false or currentModelConfig == nil or currentModelConfig ~= nil and currentModelConfig.modelName ~= modelName then
         -- set power options on UI on first load OR when model is changed
         if configuration.models ~= nil and configuration.models[modelName] ~= nil and configuration.models[modelName].vtxPower ~= nil then
             for i=1, #configuration.models[modelName].vtxPower do
@@ -94,12 +97,36 @@ local function loadSettings()
             end
             vtxPowerOptionsSel[1] = configuration.models[modelName].vtxPit
         end
+
+        currentModelConfig = configuration.models[modelName]
     end
     
+    
+    collectgarbage()
+end
+
+
+local function tableToString(t)
+    if type(t) ~= "table" then return t
+    else
+      local st = "[ "
+      for i=1,#t do
+        if t[i] ~= nil then
+          if st ~= "[ " then st = st .. ", " end
+          if type(t[i]) == "table" then
+            st = st .. tableToString(t[i])
+          else
+            st = st .. t[i]
+          end
+        end
+      end
+      return st .. " ]"
+    end
 end
 
 
 local function saveSettings()
+    changesSaved = true
     loadSettings()
     local modelInfo = model.getInfo()
     local modelName = modelInfo["name"]
@@ -119,6 +146,7 @@ local function saveSettings()
         defaultModel.vtxPower = { 25 }
         thisModel.vtxPit = false
         configuration.models["default"] = defaultModel
+        thisModel = nil
     end
     if configuration.models[modelName] == nil then
         local thisModel = {}
@@ -126,13 +154,19 @@ local function saveSettings()
         thisModel.vtxPower = getSelectedPowerTable()
         thisModel.vtxPit = vtxPowerOptionsSel[1]
         configuration.models[modelName] = thisModel
+        thisModel = nil
     end
     configuration.models[modelName].vtxPower = getSelectedPowerTable()
     configuration.models[modelName].vtxPit = vtxPowerOptionsSel[1]
     currentModelConfig = configuration.models[modelName]
+    --selectedVtxPowerTable = currentModelConfig.vtxPower
+    print(tableToString(currentModelConfig.vtxPower))
     local f = io.open(KB_SCRIPT_HOME .. "/settings.config", "w")        -- open file in append mode
     io.write(f, "return " .. outputTable(configuration))
     io.close(f)
+    f = nil
+    modelName = nil
+    collectgarbage()
 end
 
 
@@ -167,6 +201,8 @@ local function drawVtxOptions(x,y, yScrollPos, event)
         if i > 1 then metric = "mW" end
         drawCheckOption(x,y + i*12,yScrollPos, vtxAllPowerOptions[i]..metric, vtxPowerOptionsSel[i], i == currentSelected)
     end
+
+    collectgarbage()
 end
 
 

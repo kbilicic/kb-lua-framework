@@ -14,6 +14,27 @@ local function round(num, idp)
   collectgarbage()
 end
 
+--###############################################################
+-- prints table content to a string for debugging
+-- supports nested tables
+--############################################################### 
+local function tableToString(t)
+  if type(t) ~= "table" then return t
+  else
+    local st = "[ "
+    for i=1,#t do
+      if t[i] ~= nil then
+        if st ~= "[ " then st = st .. ", " end
+        if type(t[i]) == "table" then
+          st = st .. tableToString(t[i])
+        else
+          st = st .. t[i]
+        end
+      end
+    end
+    return st .. " ]"
+  end
+end
 
 --###############################################################
 -- Metrics conversion 

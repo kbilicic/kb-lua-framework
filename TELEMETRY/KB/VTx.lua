@@ -64,7 +64,7 @@ end
 assert(loadScript(SCRIPT_HOME.."/common.luac", "T"))()
 collectgarbage()
 
-local run_ui = assert(loadScript(SCRIPT_HOME.."/ui.luac", "T"))()
+local run_ui = assert(loadScript(SCRIPT_HOME.."/ui.lua", "T"))()
 collectgarbage()
 
 local background = assert(loadScript(SCRIPT_HOME.."/background.luac", "T"))()
@@ -76,8 +76,7 @@ local lastMenuEvent = 0
 function run(event)
 	lastMenuEvent = getTime()
 	collectgarbage()
-	run_ui(event)
-	return 0
+	return run_ui(event)
 end
 
 function run_bg()

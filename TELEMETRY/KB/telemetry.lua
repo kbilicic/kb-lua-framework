@@ -1,5 +1,5 @@
 if helper == nil then
-    helper = assert(loadScript(KB_SCRIPT_HOME.."/basics.lua"))()
+    helper = assert(loadScript(KB_SCRIPT_HOME.."/basics.luac"))()
 end
 
 --###############################################################
