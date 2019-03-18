@@ -64,7 +64,7 @@ end
 assert(loadScript(SCRIPT_HOME.."/common.luac", "T"))()
 collectgarbage()
 
-local run_ui = assert(loadScript(SCRIPT_HOME.."/ui.lua", "T"))()
+local run_ui = assert(loadScript(SCRIPT_HOME.."/ui.luac", "T"))()
 collectgarbage()
 
 local background = assert(loadScript(SCRIPT_HOME.."/background.luac", "T"))()

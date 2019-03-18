@@ -4,7 +4,6 @@ local helper = assert(loadScript(KB_SCRIPT_HOME.."/basics.luac"))()
 local widgets = nil-- = assert(loadScript(KB_SCRIPT_HOME.."/widgets.luac"))()
 local frsky = nil-- = assert(loadScript(KB_SCRIPT_HOME.."/telemetry.luac"))()
 local vtx = nil
-selectedVtxPowerTable = { 25, 200 }
 
 local function loadScriptIfNeeded(var, location)
   if var == nil then
@@ -240,7 +239,7 @@ function screen2(event)
   end
   collectgarbage()
 
-  vtx = loadScriptIfNeeded(vtx, "/vtx.lua")
+  vtx = loadScriptIfNeeded(vtx, "/vtx.luac")
 
   local page = vtx.run(event)
 
@@ -421,11 +420,6 @@ end
 -- run once on script load
 --------------------------------------------------------------------------------
 local function init()
-
-  settings = loadScriptIfNeeded(settings, "/settings.luac")
-  settings.loadSettings()
-  settings = nil
-  collectgarbage()
   
 end
 

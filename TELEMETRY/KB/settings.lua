@@ -159,7 +159,6 @@ local function saveSettings()
     configuration.models[modelName].vtxPower = getSelectedPowerTable()
     configuration.models[modelName].vtxPit = vtxPowerOptionsSel[1]
     currentModelConfig = configuration.models[modelName]
-    --selectedVtxPowerTable = currentModelConfig.vtxPower
     print(tableToString(currentModelConfig.vtxPower))
     local f = io.open(KB_SCRIPT_HOME .. "/settings.config", "w")        -- open file in append mode
     io.write(f, "return " .. outputTable(configuration))

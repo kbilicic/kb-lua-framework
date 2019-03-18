@@ -210,7 +210,6 @@ local function getVtxValues(f)
 end
 
 local function drawScreen()
-	Page.fields[3].table = selectedVtxPowerTable
 	local screen_title = Page.title
 	drawScreenTitle(screen_title)
 	for i=1,#(Page.text) do
@@ -259,7 +258,9 @@ local function drawScreen()
 				val = f.table[f.value]
 				-- KB, save vtx power, band and chan to local variables
 				--if f.t == "Power" and currentModelConfig ~= nil and currentModelConfig.vtxPower ~= nil then
-				--	val = currentModelConfig.vtxPower[f.value]
+				--	if currentModelConfig.vtxPower[5] ~= nil then
+				--		val = currentModelConfig.vtxPower[5]
+				--	end
 				--end
 				--getVtxValues(f)
 			end
