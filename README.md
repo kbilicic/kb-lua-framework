@@ -21,7 +21,7 @@ You can edit screen title, vertical scroll size and rendering method:
 
 ![](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/IMAGES/screen_config_example.JPG)
 
-item1 is a screen object where we can change name, height and render method used for drawing this screen content.
+item1 is a screen object where we can change name, height and render method used for drawing this screen content. yScrollPosition stores scroll position, set this to 0.
 
 * **name** - set the name to your liking, keep in mind that if you assign some large name, it might bleed into another screen
 
@@ -31,3 +31,11 @@ item1 is a screen object where we can change name, height and render method used
 * **drawToScreen** - this is a method name used for drawing this screen
                keep in mind that this method has to exist AND it has to located BEFORE this line
                
+
+![](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/IMAGES/screen1_code.JPG)
+
+Here you can see how screen1 (GPS in menu) is rendered/constructed. 
+`widgets = loadScriptIfNeeded(widgets, "/widgets.luac")`
+and
+`frsky = loadScriptIfNeeded(frsky, "/telemetry.luac")`
+are loading widgets and telemetry libraries we need for this screen.
