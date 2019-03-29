@@ -14,5 +14,9 @@ COPY TO TARANIS
 Main file in this script is KBL.lua. That file contact entire UI and all the screens which you can modify to your needs.
 Currently we have 4 screens which you can select by short-pressing menu button and using plus/minus or rotary button and then activate by pressing enter.
 
+
 You can edit screen title, vertical scroll size and rendering method:
+
 ![](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/IMAGES/screen_config_example.JPG)
+
+
