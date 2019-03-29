@@ -13,7 +13,6 @@ Our Taranis radios have very limited memory available to LUA scripts and out of 
 
 # HOW TO USE IT
 
-COPY TO TARANIS
 1. Download all files
 2. Unzip and copy to your taranis (SD card Location: /SCRIPTS/TELEMETRY/) all files from TELEMETRY folder
 3. Open your model settings on your Taranis and select KBL as a script on one of your screens
@@ -96,3 +95,4 @@ Parameters are in order:
 * minBarWidth - width of minimum value bar, lowest bar on the screen
 * maxBars - number of bars for maximum value
 * curvePower - exponential cooficient that represents bar curvature to the left side
+
