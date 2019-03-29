@@ -22,9 +22,12 @@ You can edit screen title, vertical scroll size and rendering method:
 ![](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/IMAGES/screen_config_example.JPG)
 
 item1 is a screen object where we can change name, height and render method used for drawing this screen content.
+
 name - set the name to your liking, keep in mind that if you assign some large name, it might bleed into another screen
+
 height - this is the screen height, set this to your screen height, X7 and X9 have screen height of 64 pixels...
          You can set this to be LARGER than your screen size, if you do that, you will be able to scroll the screen content using your X7          know, or + and - buttons on X9
+         
 drawToScreen - this is a method name used for drawing this screen
                keep in mind that this method has to exist AND it has to located BEFORE this line
-      
+               
