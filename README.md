@@ -49,6 +49,8 @@ are loading widgets and telemetry libraries we need for this screen.
 
 ## Using widgets
 
+### BATTERY WIDGET
+
 Next line shows how we can draw battery widget on the screen with all of its parameters
 
 `widgets.DrawBatteryLevel(1,13,25,47, frsky.data.batteryPercent, frsky.data.cellCount, frsky.data.cellVoltage)`
@@ -67,3 +69,23 @@ frsky data structure holds calculated telemetry data, this is refreshed on every
 
 `frsky.refreshTelemetryAndRecalculate()`
 
+it refreshed ALL telemetry data and recalculates all calculated values, such as battery percentage and average cell voltage.
+
+You can modify location and size of the widget to place it whereever you like.
+
+
+### RSSI WIDGET
+
+Rssi widget is drawn ba calling this method:
+
+`widgets.DrawVerticalRssi2(frsky.telemetry.rssi.value, screenWidth-28, 8, 2, 7, 17, 1.8)`
+
+Parameters are in order:
+
+* rssi value - we pass that value from frsky library telemetry structure
+* rssiBarX - x location of top most bar when rssi has maximum value
+* rssiBarY - this is desired y location where top most bar will be drawn on the screen.
+* oneBarHeight - height of each bar drawn
+* minBarWidth - width of minimum value bar, lowest bar on the screen
+* maxBars - number of bars for maximum value
+* curvePower - exponential cooficient that represents bar curvature to the left side
