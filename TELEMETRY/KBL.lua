@@ -42,7 +42,7 @@ menu.previousItem = 1 -- main menu previous selected item
 -- ###############################################################
 -- Page title bar
 -- ###############################################################
-local function DrawTitleBar(cellCount, battsum, cellVoltage, otherData)
+local function DrawTitleBar(cellCount, battsum, cellVoltage, vtxBand, vtxChan, vtxPower, otherData)
   modelname = model.getInfo()
 
   lcd.drawFilledRectangle(0, 0, screenWidth , titleBarHeight, ERASE)
@@ -52,6 +52,9 @@ local function DrawTitleBar(cellCount, battsum, cellVoltage, otherData)
   end
   if battsum ~= nil then
     lcd.drawText(lcd.getLastRightPos() + 3, 1,  helper.round(battsum,1) .. "V", SMLSIZE)
+  end
+  if vtxBand ~= nil then
+    lcd.drawText(lcd.getLastRightPos() + 3, 1,  vtxBand .. vtxChan .. " > " .. vtxPower .. "mW", SMLSIZE)
   end
 
   if modelname ~= nil and type(modelname) == "table" then
@@ -175,13 +178,22 @@ function screen1(event)
     lcd.drawFilledRectangle(28,46,18,16)
   end
 
-  widgets.drawTimer(50,25, frsky.data.armedTimer, nil)
+  widgets.drawTimer(33,27, frsky.data.armedTimer, nil)
 
   if VTX_POWER == nil then
-    VTX_POWER = "n/a"
+    VTX_POWER = "--"
   end
-  
-  DrawTitleBar(frsky.data.cellCount, frsky.telemetry.battsum.value, frsky.data.cellVoltage)
+  if VTX_BAND == nil then
+    VTX_BAND = "?"
+  end
+  if VTX_CHANNEL == nil then
+    VTX_CHANNEL = "?"
+  end
+  if(frsky.telemetry.mah.value ~= nil) then
+    lcd.drawText(70, 27, frsky.telemetry.mah.value, MIDSIZE)
+    lcd.drawText(lcd.getLastRightPos(), 32, "mAh", SMLSIZE)
+  end
+  DrawTitleBar(frsky.data.cellCount, frsky.telemetry.battsum.value, frsky.data.cellVoltage, VTX_BAND, VTX_CHANNEL, VTX_POWER)
   --print("DrawTitleBar")
 end
 
@@ -211,14 +223,12 @@ function screenRace(event)
   widgets.DrawValueBar(28, 20, 0, 22, 41, frsky.telemetry.current.value, frsky.telemetry.current.maxValue, "A")
   widgets.DrawValueBar(52, 20, 0, 22, 41, frsky.data.power, frsky.data.maxpower, "W")
   
-  widgets.DrawVtxData(78,41,0,VTX_BAND, VTX_CHANNEL, VTX_POWER)
+  --widgets.DrawVtxData(78,41,0,VTX_BAND, VTX_CHANNEL, VTX_POWER)
   widgets.DrawFlightModeChar(107, 49, frsky.data.mode, frsky.data.armed, 0)
   --widgets.DrawRescueMode(88,47, 0)
   
-  if VTX_POWER == nil then
-    VTX_POWER = "n/a"
-  end
-  DrawTitleBar(frsky.data.cellCount, frsky.telemetry.battsum.value, frsky.data.cellVoltage)
+  
+  DrawTitleBar(frsky.data.cellCount, frsky.telemetry.battsum.value, frsky.data.cellVoltage, VTX_BAND, VTX_CHANNEL, VTX_POWER)
 end
 
 
