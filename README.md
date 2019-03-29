@@ -10,6 +10,12 @@ Our Taranis radios have very limited memory available to LUA scripts and out of 
 
 ![](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/IMAGES/demo%2019.2.2019.gif)
 
+![](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/IMAGES/menu1.JPG)
+
+![](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/IMAGES/gps_screen1.JPG)
+
+![](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/IMAGES/vtx_settings.JPG)
+
 
 # HOW TO USE IT
 
