@@ -8,7 +8,7 @@ It's even possible to load ANY script to a desired screen, this is demonstrated 
 
 COPY TO TARANIS
 1. Download all files
-2. Unzip and copy to your taranis SD card Location: /SCRIPTS/TELEMETRY/
+2. Unzip and copy to your taranis (SD card Location: /SCRIPTS/TELEMETRY/) all files from TELEMETRY folder
 3. Open your model settings on your Taranis and select KBL as a script on one of your screens
 
 
