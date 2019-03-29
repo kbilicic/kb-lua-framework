@@ -98,3 +98,7 @@ Parameters are in order:
 * maxBars - number of bars for maximum value
 * curvePower - exponential cooficient that represents bar curvature to the left side
 
+
+## About VTX script
+
+VTX script is a part of BF script, modified and memory optiized. It's still work in progress and its still memory hungry, hopefully I'll make it use less memory eventualy. VTX settings screen is a power level selection screen that will enable you to set your VTX power levels, not the ones that are hardcoded into BF. BF currently support up to 4 power levels for SA, this will be upgraded in BF 4.1
