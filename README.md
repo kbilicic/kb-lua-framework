@@ -36,8 +36,31 @@ item1 is a screen object where we can change name, height and render method used
 
 Here you can see how screen1 (GPS in menu) is rendered/constructed. 
 
-`widgets = loadScriptIfNeeded(widgets, "/widgets.luac")` and
+Lines
+
+`widgets = loadScriptIfNeeded(widgets, "/widgets.luac")` 
+
+and
 
 `frsky = loadScriptIfNeeded(frsky, "/telemetry.luac")`
 
 are loading widgets and telemetry libraries we need for this screen.
+
+Next line shows how we can draw battery widget on the screen with all of its parameters
+
+`widgets.DrawBatteryLevel(1,13,25,47, frsky.data.batteryPercent, frsky.data.cellCount, frsky.data.cellVoltage)`
+
+which are in order:
+
+* X 
+* Y
+* width
+* height
+* battery percent value - we pass that value from frsky library data structure
+* battery cell count - we pass that value from frsky library data structure
+* average cell voltage - we pass that value from frsky library data structure
+
+frsky data structure holds calculated telemetry data, this is refreshed on every screen render by calling a method:
+
+`frsky.refreshTelemetryAndRecalculate()`
+
