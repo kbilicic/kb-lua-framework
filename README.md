@@ -35,7 +35,9 @@ item1 is a screen object where we can change name, height and render method used
 ![](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/IMAGES/screen1_code.JPG)
 
 Here you can see how screen1 (GPS in menu) is rendered/constructed. 
-`widgets = loadScriptIfNeeded(widgets, "/widgets.luac")`
-and
+
+`widgets = loadScriptIfNeeded(widgets, "/widgets.luac")` and
+
 `frsky = loadScriptIfNeeded(frsky, "/telemetry.luac")`
+
 are loading widgets and telemetry libraries we need for this screen.
