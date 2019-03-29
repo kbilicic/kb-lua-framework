@@ -4,11 +4,12 @@ This is a OpenTX LUA framework that enables everyone to create their own lua scr
 It's even possible to load ANY script to a desired screen, this is demonstrated by loading a betaflight VTX settings page as a separate screen.
 
 # IMPORTANT NOTICE
-Our Taranis radios have very limited memory available to LUA scripts and out of memory can happen... there's not much you can do about it EXCEPT keep your script small, don't put more then 4 screens in it. If you use VTX setup as one of your screens as I do, even 4 screens are pushing the memory limit. VTX script is very hungry, no matter how much I tried cleaning it's garbage memory, I still manage to hit out of memory error (something)
+Our Taranis radios have very limited memory available to LUA scripts and out of memory can happen... there's not much you can do about it EXCEPT keep your script small, don't put more then 4 screens in it. If you use VTX setup as one of your screens as I do, even 4 screens are pushing the memory limit. VTX script is very hungry, no matter how much I tried cleaning the memory garbage, I still manage to get out of memory error (sometimes)
 
 
 
 ![](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/IMAGES/demo%2019.2.2019.gif)
+
 
 # HOW TO USE IT
 
