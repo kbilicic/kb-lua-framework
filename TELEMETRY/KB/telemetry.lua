@@ -192,6 +192,12 @@ end
 -- during the flight due to voltage swings
 --###############################################################
 local function CalculateBatteryTypeAndStatus()
+    -- sanity check for calculated cell voltages
+    local cellCountCheck = telemetry.battsum.value / telemetry.a4.value
+    if data.cellCount < cellCountCheck then
+      data.battTypeCalculated = false
+    end
+
     if data.battTypeCalculated == false then
       if telemetry.battsum.value > 10 and telemetry.battsum.value <= 12.75 then
         data.cellCount = 3  -- 3S
@@ -234,8 +240,20 @@ local function CalculateHeadingOrientation()
     end
 end
 
+local function DetectResetTelemetryOrFlight()
+  --print("tmp1: " .. telemetry.tmp1.value)
+  if telemetry.tmp1.value ~= nil and telemetry.tmp1.value == 0 then
+    -- telemetry or flight have been reset
+    data.battTypeCalculated = false
+    return true
+  else
+    return false
+  end 
+end
+
 
 local function refreshTelemetryAndRecalculate()
+    DetectResetTelemetryOrFlight()
     -- get new values
     RefreshTelemetryValues()
     -- calculations

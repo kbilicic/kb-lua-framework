@@ -148,7 +148,7 @@ end
 -- ###############################################################
 -- Draw screen 1
 -- ###############################################################  
-function screen1(event)
+function screen_flight_draw(event)
   local screen = menu.items[menu.currentItem]
 
   if vtx ~= nil then
@@ -179,56 +179,12 @@ function screen1(event)
   end
 
   widgets.drawTimer(33,27, frsky.data.armedTimer, nil)
-
-  if VTX_POWER == nil then
-    VTX_POWER = "--"
-  end
-  if VTX_BAND == nil then
-    VTX_BAND = "?"
-  end
-  if VTX_CHANNEL == nil then
-    VTX_CHANNEL = "?"
-  end
+  
   if(frsky.telemetry.mah.value ~= nil) then
     lcd.drawText(70, 27, frsky.telemetry.mah.value, MIDSIZE)
     lcd.drawText(lcd.getLastRightPos(), 32, "mAh", SMLSIZE)
   end
-  DrawTitleBar(frsky.data.cellCount, frsky.telemetry.battsum.value, frsky.data.cellVoltage, VTX_BAND, VTX_CHANNEL, VTX_POWER)
-  --print("DrawTitleBar")
-end
-
-
-
--- ###############################################################
--- Draw race screen
--- ###############################################################  
-function screenRace(event)
-  local screen = menu.items[menu.currentItem]
-
-  if vtx ~= nil then
-    vtx.cleanup()
-    vtx = nil
-  end
-  collectgarbage()
-
-  widgets = loadScriptIfNeeded(widgets, "/widgets.luac")
-  frsky = loadScriptIfNeeded(frsky, "/telemetry.luac")
-
-  frsky.refreshTelemetryAndRecalculate()
-
-  widgets.DrawVerticalRssi2(frsky.telemetry.rssi.value, screenWidth-28, 8, 2, 7, 17, 2.1)
-  --DrawFlightMode(97,54,"ACRO")
-  
-  widgets.DrawBatteryLevel(1,13,25,47, frsky.data.batteryPercent, frsky.data.cellCount, frsky.data.cellVoltage)
-  widgets.DrawValueBar(28, 20, 0, 22, 41, frsky.telemetry.current.value, frsky.telemetry.current.maxValue, "A")
-  widgets.DrawValueBar(52, 20, 0, 22, 41, frsky.data.power, frsky.data.maxpower, "W")
-  
-  --widgets.DrawVtxData(78,41,0,VTX_BAND, VTX_CHANNEL, VTX_POWER)
-  widgets.DrawFlightModeChar(107, 49, frsky.data.mode, frsky.data.armed, 0)
-  --widgets.DrawRescueMode(88,47, 0)
-  
-  
-  DrawTitleBar(frsky.data.cellCount, frsky.telemetry.battsum.value, frsky.data.cellVoltage, VTX_BAND, VTX_CHANNEL, VTX_POWER)
+  DrawTitleBar(frsky.data.cellCount, frsky.telemetry.battsum.value, frsky.data.cellVoltage, nil, nil, nil)
 end
 
 
@@ -236,7 +192,7 @@ end
 -- ###############################################################
 -- Draw screen 2
 -- ###############################################################  
-function screen2(event)
+function screen_vtx_draw(event)
   local screen = menu.items[menu.currentItem]
 
   if widgets ~= nil then
@@ -260,7 +216,7 @@ end
 -- ###############################################################
 -- Draw screen 2
 -- ###############################################################  
-function drawSettings(event)
+function screen_settings_draw(event)
   local screen = menu.items[menu.currentItem]
   if widgets ~= nil then
     widgets.cleanup()
@@ -283,8 +239,48 @@ function drawSettings(event)
 end
 
 
+function screen_x9_draw()
+  local screen = menu.items[menu.currentItem]
 
--- to add new screen create a method and add new option to menu, equivalent to screen1, screen2 and screen3
+  if vtx ~= nil then
+    vtx.cleanup()
+    vtx = nil
+  end
+  collectgarbage()
+
+  widgets = loadScriptIfNeeded(widgets, "/widgets.luac")
+  frsky = loadScriptIfNeeded(frsky, "/telemetry.luac")
+
+  frsky.refreshTelemetryAndRecalculate()
+  widgets.DrawBatteryLevel(1,13,25,47, frsky.data.batteryPercent, frsky.data.cellCount, frsky.data.cellVoltage)
+  widgets.DrawVerticalRssi2(frsky.telemetry.rssi.value, screenWidth-33, 8, 2, 12, 17, 1.9)
+  
+  widgets.DrawGpsFix(30, 12, 0, frsky.data.gpslock, frsky.data.satcount)
+  widgets.DrawDistanceAndHeading(57,16, frsky.telemetry.heading.value, frsky.data.gps_hori_Distance, "m");
+  widgets.DrawAltitudeSmall(lcd.getLastRightPos() + 6,14, frsky.telemetry.alt.value, "m")
+  widgets.DrawFlightMode(159, 48, frsky.data.mode, frsky.data.armed)
+  --widgets.DrawRescueMode(88,47, 0)
+  --DrawFlightMode(97,54,"ACRO")
+  
+  -- draw coordinates
+  if frsky.telemetry.gps.value ~= nil and type(frsky.telemetry.gps.value) == "table" then
+    lcd.drawText(31, 47, "Lat " .. helper.round(frsky.telemetry.gps.value["lat"], 4) .. " N ", SMLSIZE)
+    lcd.drawText(31, 55, "Lon " .. helper.round(frsky.telemetry.gps.value["lon"], 4) .. " E ", SMLSIZE)
+    lcd.drawFilledRectangle(28,46,18,16)
+  end
+
+  widgets.drawTimer(33,27, frsky.data.armedTimer, nil)
+  
+  if(frsky.telemetry.mah.value ~= nil) then
+    lcd.drawText(70, 27, frsky.telemetry.mah.value, MIDSIZE)
+    lcd.drawText(lcd.getLastRightPos(), 32, "mAh", SMLSIZE)
+  end
+  DrawTitleBar(frsky.data.cellCount, frsky.telemetry.battsum.value, frsky.data.cellVoltage, nil, nil, nil)
+end
+
+
+
+-- to add new screen create a method and add new option to menu, equivalent to screen_flight_draw, screen_vtx_draw and screen3
 -- EXAMPLE (screen no.5):
 --
 -- function screen5() 
@@ -296,31 +292,31 @@ end
 
 
 -- menu setup has to be AFTER screenX() drawing methods
-local item1 = {}
-item1.name = "GPS"
-item1.height = 64
-item1.drawToScreen = screen1
-item1.yScrollPosition = 0
+local screen_flight = {}
+screen_flight.name = "X7"
+screen_flight.height = 64
+screen_flight.drawToScreen = screen_flight_draw
+screen_flight.yScrollPosition = 0
 
-local item2 = {}
-item2.name = "Race"
-item2.height = 128
-item2.drawToScreen = screenRace
-item2.yScrollPosition = 0
+local screen_vtx = {}
+screen_vtx.name = "VTX"
+screen_vtx.height = 64
+screen_vtx.drawToScreen = screen_vtx_draw
+screen_vtx.yScrollPosition = 0
 
-local item3 = {}
-item3.name = "VTX"
-item3.height = 64
-item3.drawToScreen = screen2
-item3.yScrollPosition = 0
+local screen_settings = {}
+screen_settings.name = "Settings"
+screen_settings.height = 240
+screen_settings.drawToScreen = screen_settings_draw
+screen_settings.yScrollPosition = 0
 
-local itemSettings = {}
-itemSettings.name = "Settings"
-itemSettings.height = 240
-itemSettings.drawToScreen = drawSettings
-itemSettings.yScrollPosition = 0
+local screen_2 = {}
+screen_2.name = "X9D"
+screen_2.height = 64
+screen_2.drawToScreen = screen_x9_draw
+screen_2.yScrollPosition = 0
 
-menu.items = { item3, itemSettings, item1, item2 } -- item5 for screen no.4 should be added after item4
+menu.items = { screen_flight, screen_2 } -- item5 for screen no.4 should be added after item4
 
 -- ###############################################################
 -- Main draw method                      
@@ -409,7 +405,7 @@ end
 -- BACKGROUND loop FUNCTION
 --------------------------------------------------------------------------------
 local function backgroundwork()
-
+  collectgarbage()
 end
 
 
