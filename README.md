@@ -1,16 +1,9 @@
 # kb-lua-framework
 
-This is a OpenTX LUA framework that enables everyone to create their own lua screens and menus to switch between the screens.
-It's even possible to load ANY script to a desired screen, this is demonstrated by loading a betaflight VTX settings page as a separate screen.
+This is a my OpenTX LUA framework that enables everyone to create their own lua screens. Menu to switch between the screens is automatically updated. It's even possible to load ANY script to a desired screen. I'll post instructions on how to do this yourself later, but if you are not a coder, I probably can't teach you how to do it, sorry :(
 
-# IMPORTANT NOTICE
-Our Taranis radios have very limited memory available to LUA scripts and out of memory can happen... there's not much you can do about it EXCEPT keep your script small, don't put more then 4 screens in it. If you use VTX setup as one of your screens as I do, even 4 screens are pushing the memory limit. VTX script is very hungry, no matter how much I tried cleaning the memory garbage, I still manage to get out of memory error (sometimes)
 
-![](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/IMAGES/menu1.JPG)
 
-![](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/IMAGES/gps_screen1.JPG)
-
-![](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/IMAGES/vtx_settings.JPG)
 
 
 # HOW TO USE IT
@@ -99,6 +92,19 @@ Parameters are in order:
 * curvePower - exponential cooficient that represents bar curvature to the left side
 
 
-## About VTX script
 
-VTX script is a part of BF script, modified and memory optiized. It's still work in progress and its still memory hungry, hopefully I'll make it use less memory eventualy. VTX settings screen is a power level selection screen that will enable you to set your VTX power levels, not the ones that are hardcoded into BF. BF currently support up to 4 power levels for SA, this will be upgraded in BF 4.1
+# FUTURE VERSIONS - not yet available
+Our Taranis radios have very limited memory available to LUA scripts and out of memory can happen... there's not much you can do about it EXCEPT keep your script small. I've spent a lot of time on trying to use Betaflight VTX script on one of my screens, but, no matter how much I tried cleaning the memory, I still manage to get out of memory error (sometimes)
+
+![](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/IMAGES/menu1.JPG)
+
+![](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/IMAGES/gps_screen1.JPG)
+
+![](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/IMAGES/vtx_settings.JPG)
+
+Since VTX remote control, or smartaudio, presumes you have 4 power levels: 25, 200, 500, 800 you will always see these 4 options no matter which VTX you use. Sooooooo I created a settings screen where you can choose your VTX power settings, so when you change powerlevels, you only get the actual levels that exist.
+Some VTX devices have 5 power levels, this is still not supported by BF, however, I heard it might be available from version 4.2 (not 4.0.2, but 4.2) - so far, it's just a rumor
+
+If I don't manage to incorporate VTX into one of my screens without memory creash, I'll probably release a new script that will be used just for that. We'll see...
+
+
