@@ -8,9 +8,11 @@ X7 and X9 version - download [HERE!](https://raw.githubusercontent.com/kbilicic/
 
 # HOW TO USE IT
 
-1. Download all files
-2. Unzip and copy to your taranis (SD card Location: /SCRIPTS/TELEMETRY/) all files from TELEMETRY folder
+1. Download rar file from [HERE!](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/DOWNLOADS/KBL.rar)
+2. Unzip and copy to your taranis (SD card Location: /SCRIPTS/TELEMETRY/) all files from rar package, just dump them there
 3. Open your model settings on your Taranis and select KBL as a script on one of your screens
+4. Make sure your telemetry works, minimum you need for script to start is VFAS and RSSI
+5. If you want to see your battery mAh consumed, make sure to add new telemetry sensor - calculated for Curr, **name it mAh**
 
 # Video instructions on how to set it up on X7, same goes for X9
 
