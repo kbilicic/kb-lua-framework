@@ -18,6 +18,7 @@ X7 version  - download HERE
 # Video instructions on how to set it up on X7, same goes for X9
 
 ![](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/IMAGES/x7_setup.gif)
+
 Watch on youtube here: https://www.youtube.com/embed/2RAJuoX65tA
 
 
