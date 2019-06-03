@@ -16,7 +16,7 @@ X7 version  - download HERE
 3. Open your model settings on your Taranis and select KBL as a script on one of your screens
 
 # Video instructions on how to set it up on X7, same goes for X9
-<iframe width="1519" height="200" src="https://www.youtube.com/embed/2RAJuoX65tA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+Check on youtube here: https://www.youtube.com/embed/2RAJuoX65tA
 
 
 # HOW IT WORKS.... AND HOW TO MODIFY IT
