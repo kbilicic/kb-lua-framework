@@ -6,7 +6,7 @@ X7 and X9 version - download [HERE!](https://raw.githubusercontent.com/kbilicic/
 ![](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/IMAGES/x9d.gif)
 
 
-# HOW TO USE IT
+# SET IT UP
 
 1. Download rar file from [HERE!](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/DOWNLOADS/KBL.rar)
 2. Unzip and copy to your taranis (SD card Location: /SCRIPTS/TELEMETRY/) all files from rar package, just dump them there
