@@ -2,11 +2,8 @@
 
 This is a my OpenTX LUA framework that enables everyone to create their own lua screens. Menu to switch between the screens is automatically updated. It's even possible to load ANY script to a desired screen. I'll post instructions on how to do this yourself later, but if you are not a coder, I probably can't teach you how to do it, sorry :(
 
-X9 version - download HERE
+X7 and X9 version - download [HERE!](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/DOWNLOADS/KBL.rar)
 ![](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/IMAGES/x9d.gif)
-
-
-X7 version  - download HERE
 
 
 # HOW TO USE IT
