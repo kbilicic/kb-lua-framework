@@ -15,6 +15,9 @@ X7 version  - download HERE
 2. Unzip and copy to your taranis (SD card Location: /SCRIPTS/TELEMETRY/) all files from TELEMETRY folder
 3. Open your model settings on your Taranis and select KBL as a script on one of your screens
 
+# Video instructions on how to set it up on X7, same goes for X9
+Check on youtube here: https://www.youtube.com/embed/2RAJuoX65tA
+
 
 # HOW IT WORKS.... AND HOW TO MODIFY IT
 
