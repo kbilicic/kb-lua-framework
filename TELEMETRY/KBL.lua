@@ -239,45 +239,6 @@ function screen_settings_draw(event)
 end
 
 
-function screen_x9_draw()
-  local screen = menu.items[menu.currentItem]
-
-  if vtx ~= nil then
-    vtx.cleanup()
-    vtx = nil
-  end
-  collectgarbage()
-
-  widgets = loadScriptIfNeeded(widgets, "/widgets.luac")
-  frsky = loadScriptIfNeeded(frsky, "/telemetry.luac")
-
-  frsky.refreshTelemetryAndRecalculate()
-  widgets.DrawBatteryLevel(1,13,25,47, frsky.data.batteryPercent, frsky.data.cellCount, frsky.data.cellVoltage)
-  widgets.DrawVerticalRssi2(frsky.telemetry.rssi.value, screenWidth-33, 8, 2, 12, 17, 1.9)
-  
-  widgets.DrawGpsFix(30, 12, 0, frsky.data.gpslock, frsky.data.satcount)
-  widgets.DrawDistanceAndHeading(57,16, frsky.telemetry.heading.value, frsky.data.gps_hori_Distance, "m");
-  widgets.DrawAltitudeSmall(lcd.getLastRightPos() + 6,14, frsky.telemetry.alt.value, "m")
-  widgets.DrawFlightMode(159, 48, frsky.data.mode, frsky.data.armed)
-  --widgets.DrawRescueMode(88,47, 0)
-  --DrawFlightMode(97,54,"ACRO")
-  
-  -- draw coordinates
-  if frsky.telemetry.gps.value ~= nil and type(frsky.telemetry.gps.value) == "table" then
-    lcd.drawText(31, 47, "Lat " .. helper.round(frsky.telemetry.gps.value["lat"], 4) .. " N ", SMLSIZE)
-    lcd.drawText(31, 55, "Lon " .. helper.round(frsky.telemetry.gps.value["lon"], 4) .. " E ", SMLSIZE)
-    lcd.drawFilledRectangle(28,46,18,16)
-  end
-
-  widgets.drawTimer(33,27, frsky.data.armedTimer, nil)
-  
-  if(frsky.telemetry.mah.value ~= nil) then
-    lcd.drawText(70, 27, frsky.telemetry.mah.value, MIDSIZE)
-    lcd.drawText(lcd.getLastRightPos(), 32, "mAh", SMLSIZE)
-  end
-  DrawTitleBar(frsky.data.cellCount, frsky.telemetry.battsum.value, frsky.data.cellVoltage, nil, nil, nil)
-end
-
 
 
 -- to add new screen create a method and add new option to menu, equivalent to screen_flight_draw, screen_vtx_draw and screen3
@@ -310,13 +271,7 @@ screen_settings.height = 240
 screen_settings.drawToScreen = screen_settings_draw
 screen_settings.yScrollPosition = 0
 
-local screen_2 = {}
-screen_2.name = "X9D"
-screen_2.height = 64
-screen_2.drawToScreen = screen_x9_draw
-screen_2.yScrollPosition = 0
-
-menu.items = { screen_flight, screen_2 } -- item5 for screen no.4 should be added after item4
+menu.items = { screen_flight } -- item5 for screen no.4 should be added after item4
 
 -- ###############################################################
 -- Main draw method                      
