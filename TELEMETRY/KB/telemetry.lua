@@ -128,24 +128,6 @@ previousSwitchStatus = false
 
 local function CalculateModeArmedTimer()
   local previousState = data.armed
-  local lapOverSwitch = getValue("ls10") > 0
-
-  if lapOverSwitch ~= previousSwitchStatus then 
-    previousSwitchStatus = true 
-    previousSwitchStatus = lapOverSwitch
-    if lapOverSwitch == true then
-      
-      local lapDuration = getTime() - data.lastLapTime
-      data.lastlapTime = getTime()
-      if data.lapTimes[#data.lapTimes] ~= nil then
-        data.lapTimes[#data.lapTimes+1] = lapDuration - data.lapTimes[#data.lapTimes]
-      else
-        data.lapTimes[#data.lapTimes+1] = lapDuration
-      end
-      print("lap time: " .. data.lapTimes[#data.lapTimes])
-      
-    end
-  end
 
   if telemetry.tmp1.value ~= nil then
     local status = telemetry.tmp1.value % 10
