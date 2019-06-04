@@ -24,7 +24,7 @@ Watch on youtube here: https://www.youtube.com/embed/2RAJuoX65tA
 # HOW IT WORKS.... AND HOW TO MODIFY IT
 
 Main file in this script is KBL.lua. That file contact entire UI and all the screens which you can modify to your needs.
-Currently we have 4 screens which you can select by short-pressing menu button and using plus/minus or rotary button and then activate by pressing enter.
+On example gif below, there are 4 screens which you can select from by short-pressing menu button and using plus/minus or rotary button and then activate by pressing enter.
 
 
 You can edit screen title, vertical scroll size and rendering method:
