@@ -252,28 +252,28 @@ function screen_x9_draw()
   frsky = loadScriptIfNeeded(frsky, "/telemetry.luac")
 
   frsky.refreshTelemetryAndRecalculate()
-  widgets.DrawBatteryLevel(1,13,25,47, frsky.data.batteryPercent, frsky.data.cellCount, frsky.data.cellVoltage)
-  widgets.DrawVerticalRssi2(frsky.telemetry.rssi.value, screenWidth-33, 8, 2, 12, 17, 1.9)
+  widgets.DrawBatteryLevel(2,13,25,47, frsky.data.batteryPercent, frsky.data.cellCount, frsky.data.cellVoltage)
+  widgets.DrawVerticalRssi2(frsky.telemetry.rssi.value, screenWidth-36, 8, 2, 15, 17, 2)
   
-  widgets.DrawGpsFix(30, 12, 0, frsky.data.gpslock, frsky.data.satcount)
-  widgets.DrawDistanceAndHeading(57,16, frsky.telemetry.heading.value, frsky.data.gps_hori_Distance, "m");
+  widgets.DrawGpsFix(31, 12, 0, frsky.data.gpslock, frsky.data.satcount)
+  widgets.DrawDistanceAndHeading(58,16, frsky.telemetry.heading.value, frsky.data.gps_hori_Distance, "m");
   widgets.DrawAltitudeSmall(lcd.getLastRightPos() + 6,14, frsky.telemetry.alt.value, "m")
-  widgets.DrawFlightMode(159, 48, frsky.data.mode, frsky.data.armed)
+  widgets.DrawFlightMode(170, 53, frsky.data.mode, frsky.data.armed)
   --widgets.DrawRescueMode(88,47, 0)
   --DrawFlightMode(97,54,"ACRO")
   
   -- draw coordinates
   if frsky.telemetry.gps.value ~= nil and type(frsky.telemetry.gps.value) == "table" then
-    lcd.drawText(31, 47, "Lat " .. helper.round(frsky.telemetry.gps.value["lat"], 4) .. " N ", SMLSIZE)
-    lcd.drawText(31, 55, "Lon " .. helper.round(frsky.telemetry.gps.value["lon"], 4) .. " E ", SMLSIZE)
-    lcd.drawFilledRectangle(28,46,18,16)
+    lcd.drawText(33, 27, "Lat " .. helper.round(frsky.telemetry.gps.value["lat"], 4) .. " N ", SMLSIZE)
+    lcd.drawText(33, 35, "Lon " .. helper.round(frsky.telemetry.gps.value["lon"], 4) .. " E ", SMLSIZE)
+    lcd.drawFilledRectangle(30,26,18,16)
   end
 
-  widgets.drawTimer(33,27, frsky.data.armedTimer, nil)
+  widgets.drawTimer(120,46, frsky.data.armedTimer, nil, DBLSIZE)
   
   if(frsky.telemetry.mah.value ~= nil) then
-    lcd.drawText(70, 27, frsky.telemetry.mah.value, MIDSIZE)
-    lcd.drawText(lcd.getLastRightPos(), 32, "mAh", SMLSIZE)
+    lcd.drawText(31, 50, frsky.telemetry.mah.value, MIDSIZE)
+    lcd.drawText(lcd.getLastRightPos(), 55, "mAh", SMLSIZE)
   end
   DrawTitleBar(frsky.data.cellCount, frsky.telemetry.battsum.value, frsky.data.cellVoltage, nil, nil, nil)
 end
