@@ -2,16 +2,15 @@
 
 This is a my OpenTX LUA framework that enables everyone to create their own lua screens. Menu to switch between the screens is automatically updated. It's even possible to load ANY script to a desired screen. I'll post instructions on how to do this yourself later, but if you are not a coder, I probably can't teach you how to do it, sorry :(
 
-X7 and X9 version - download [HERE!](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/DOWNLOADS/KBL.rar)
 ![](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/IMAGES/x9d.gif)
 
 
 # SET IT UP
 
-1. Download rar file from [HERE!](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/DOWNLOADS/KBL.rar)
+1. Download rar file from here:  [X7!](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/DOWNLOADS/KBL_X7.rar) or [X9!](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/DOWNLOADS/KBL_X9.rar)
 2. Unzip and copy to your taranis (SD card Location: /SCRIPTS/TELEMETRY/) all files from rar package, just dump them there
 3. Open your model settings on your Taranis and select KBL as a script on one of your screens
-4. Make sure your telemetry works, minimum you need for script to start is VFAS and RSSI
+4. Make sure your telemetry works, minimum you need for script to start is VFAS, A4 and RSSI (A4 is estimated cell voltage)
 5. If you want to see your battery mAh consumed, make sure to add new telemetry sensor - calculated for Curr, **name it mAh**
 
 # Video instructions on how to set it up on X7, same goes for X9
