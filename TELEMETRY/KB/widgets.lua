@@ -59,10 +59,10 @@ local function DrawBatteryLevel(battBarX, battBarY, barWidth, battBarMax, batter
     else
         batterStatusValue = helper.round(cellVoltage, 2) .. "V"
     end
-  
-    local battBarHeight = helper.round(battBarMax * batteryPercent / 100);
+    
+    local battBarHeight = helper.round(battBarMax * math.min(batteryPercent, 100) / 100);
     if batteryPercent > 99.9 then
-      lcd.drawText(battBarX + 2, battBarMax + battBarY + 2 - battBarHeight, "FULL", SMLSIZE)
+      lcd.drawText(battBarX + 2, battBarMax + battBarY + 2 - battBarHeight, batterStatusValue, SMLSIZE)
     elseif batteryPercent > 20 and batterStatusValue ~= nil then
       lcd.drawText(battBarX + 2, battBarMax + battBarY + 2 - battBarHeight, batterStatusValue, SMLSIZE)
     elseif batterStatusValue ~= nil then
