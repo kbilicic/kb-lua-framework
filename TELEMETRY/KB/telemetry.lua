@@ -193,8 +193,7 @@ end
 --###############################################################
 local function CalculateBatteryTypeAndStatus()
     -- sanity check for calculated cell voltages
-    local cellCountCheck = telemetry.battsum.value / telemetry.a4.value
-    if data.cellCount < cellCountCheck or data.armed == false then
+    if data.armed == false then
       data.battTypeCalculated = false
     end
 
