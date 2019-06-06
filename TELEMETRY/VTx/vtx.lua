@@ -171,7 +171,7 @@ return {
 		return uFreq
 	end,
 	updatePowerTable = function(self)
-		print("updatePowerTable")
+		--print("updatePowerTable")
 		if self.values and not self.fields[3].table then
 			if self.values[1] == 1 then          -- RTC6705
 				self.fields[3].table = { 25, 200 }
