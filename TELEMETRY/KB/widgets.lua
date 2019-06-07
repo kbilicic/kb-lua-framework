@@ -36,11 +36,11 @@ end
 --###############################################################
 local function DrawFlightMode(x, y, mode, blink)
   if blink then
-    lcd.drawText(x, y, string.sub(mode,1,4), MIDSIZE + BLINK)
+    lcd.drawText(x, y, string.sub(mode,1,4), SMLSIZE + BLINK)
   else
-    lcd.drawText(x, y, string.sub(mode,1,4), MIDSIZE)
+    lcd.drawText(x, y, string.sub(mode,1,4), SMLSIZE)
   end
-  drawFilledRoundedRectangleScrolled(x-2, y-2, 39, 16, yScrollPosition)
+  drawFilledRoundedRectangleScrolled(x-2, y-2, 24, 10, yScrollPosition)
   screen = nil
 end
 
@@ -59,10 +59,10 @@ local function DrawBatteryLevel(battBarX, battBarY, barWidth, battBarMax, batter
     else
         batterStatusValue = helper.round(cellVoltage, 2) .. "V"
     end
-  
-    local battBarHeight = helper.round(battBarMax * batteryPercent / 100);
+    
+    local battBarHeight = helper.round(battBarMax * math.min(batteryPercent, 100) / 100);
     if batteryPercent > 99.9 then
-      lcd.drawText(battBarX + 2, battBarMax + battBarY + 2 - battBarHeight, "FULL", SMLSIZE)
+      lcd.drawText(battBarX + 2, battBarMax + battBarY + 2 - battBarHeight, batterStatusValue, SMLSIZE)
     elseif batteryPercent > 20 and batterStatusValue ~= nil then
       lcd.drawText(battBarX + 2, battBarMax + battBarY + 2 - battBarHeight, batterStatusValue, SMLSIZE)
     elseif batterStatusValue ~= nil then
@@ -281,13 +281,16 @@ end
 --###############################################################
 -- Draw timer
 --###############################################################
-local function drawTimer(x, y, timer, label)
+local function drawTimer(x, y, timer, label, size)
+  if size == nil then
+    size = MIDSIZE
+  end
   if label ~= nil then
     lcd.drawText(x+3, y+1, label, SMLSIZE)
     lcd.drawFilledRectangle(x, y, lcd.getLastRightPos() - x + 2, 8)
-    lcd.drawText(x, y+8, timer, MIDSIZE)
+    lcd.drawText(x, y+8, timer, size)
   else
-    lcd.drawText(x, y, timer, MIDSIZE)
+    lcd.drawText(x, y, timer, size)
   end
 end
 

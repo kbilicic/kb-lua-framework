@@ -198,19 +198,18 @@ end
 --###############################################################
 local function CalculateBatteryTypeAndStatus()
     -- sanity check for calculated cell voltages
-    local cellCountCheck = telemetry.battsum.value / telemetry.a4.value
-    if data.cellCount < cellCountCheck then
+    if data.armed == false then
       data.battTypeCalculated = false
     end
 
     if data.battTypeCalculated == false then
-      if telemetry.battsum.value > 10 and telemetry.battsum.value <= 12.75 then
+      if telemetry.battsum.value > 9.9 and telemetry.battsum.value <= 13.05 then
         data.cellCount = 3  -- 3S
-      elseif telemetry.battsum.value > 12.75 and telemetry.battsum.value <= 17 then
+      elseif telemetry.battsum.value > 13.05 and telemetry.battsum.value <= 17.4 then
         data.cellCount = 4  -- 4S
-      elseif telemetry.battsum.value > 17 and telemetry.battsum.value <= 21 then
+      elseif telemetry.battsum.value > 17.4 and telemetry.battsum.value <= 21.5 then
         data.cellCount = 5  -- 5S
-      elseif telemetry.battsum.value > 21 and telemetry.battsum.value <= 25.8 then
+      elseif telemetry.battsum.value > 21.5 and telemetry.battsum.value <= 25.8 then
         data.cellCount = 6  -- 6S
       end
       -- calculate battery type only once, not during the flight while the voltage jumps around
@@ -219,11 +218,12 @@ local function CalculateBatteryTypeAndStatus()
       end
   
       data.maxVoltage = data.cellCount * 4.25
-      data.minVoltage = data.cellCount * 3.4
+      data.minVoltage = data.cellCount * 3.5
     end
   
     data.cellVoltage = helper.round(telemetry.battsum.value / data.cellCount, 2)
     data.batteryPercent = 100 * (telemetry.battsum.value - data.minVoltage) / (data.maxVoltage - data.minVoltage)
+    if data.batteryPercent < 0 then data.batteryPercent = 0 end
   end
 
 

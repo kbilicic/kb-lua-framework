@@ -2,27 +2,28 @@
 
 This is a my OpenTX LUA framework that enables everyone to create their own lua screens. Menu to switch between the screens is automatically updated. It's even possible to load ANY script to a desired screen. I'll post instructions on how to do this yourself later, but if you are not a coder, I probably can't teach you how to do it, sorry :(
 
-X9 version - download HERE
 ![](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/IMAGES/x9d.gif)
 
 
-X7 version  - download HERE
+# SET IT UP
 
-
-# HOW TO USE IT
-
-1. Download all files
-2. Unzip and copy to your taranis (SD card Location: /SCRIPTS/TELEMETRY/) all files from TELEMETRY folder
+1. Download rar file from here:  [X7!](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/DOWNLOADS/KBL_X7.rar) or [X9!](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/DOWNLOADS/KBL_X9.rar)
+2. Unzip and copy to your taranis (SD card Location: /SCRIPTS/TELEMETRY/) all files from rar package, just dump them there
 3. Open your model settings on your Taranis and select KBL as a script on one of your screens
+4. Make sure your telemetry works, minimum you need for script to start is VFAS, A4 and RSSI (A4 is estimated cell voltage)
+5. If you want to see your battery mAh consumed, make sure to add new telemetry sensor - calculated for Curr, **name it mAh**
 
 # Video instructions on how to set it up on X7, same goes for X9
-Check on youtube here: https://www.youtube.com/embed/2RAJuoX65tA
+
+![](https://raw.githubusercontent.com/kbilicic/kb-lua-framework/master/IMAGES/x7_setup.gif)
+
+Watch on youtube here: https://www.youtube.com/embed/2RAJuoX65tA
 
 
 # HOW IT WORKS.... AND HOW TO MODIFY IT
 
 Main file in this script is KBL.lua. That file contact entire UI and all the screens which you can modify to your needs.
-Currently we have 4 screens which you can select by short-pressing menu button and using plus/minus or rotary button and then activate by pressing enter.
+On example gif below, there are 4 screens which you can select from by short-pressing menu button and using plus/minus or rotary button and then activate by pressing enter.
 
 
 You can edit screen title, vertical scroll size and rendering method:
