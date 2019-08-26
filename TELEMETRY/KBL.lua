@@ -4,10 +4,20 @@ local helper = assert(loadScript(KB_SCRIPT_HOME.."/basics.luac"))()
 local widgets = nil-- = assert(loadScript(KB_SCRIPT_HOME.."/widgets.luac"))()
 local frsky = nil-- = assert(loadScript(KB_SCRIPT_HOME.."/telemetry.luac"))()
 local vtx = nil
+local crsf = nil
 
 local function loadScriptIfNeeded(var, location)
   if var == nil then
     var = assert(loadScript(KB_SCRIPT_HOME..location))()
+    return var
+  else
+    return var
+  end
+end
+
+local function loadCrossfireIfNeeded(var)
+  if var == nil then
+    var = assert(loadScript('/CROSSFIRE/crossfire.luac'))()
     return var
   else
     return var
@@ -148,7 +158,7 @@ end
 -- ###############################################################
 -- Draw screen 1
 -- ###############################################################  
-function screen_flight_draw(event)
+function screen_x7_draw(event)
   local screen = menu.items[menu.currentItem]
 
   if vtx ~= nil then
@@ -238,6 +248,30 @@ function screen_settings_draw(event)
   DrawTitleBar2("VTX power levels")
 end
 
+function crsf_screen_draw()
+
+  local screen = menu.items[menu.currentItem]
+
+  if widgets ~= nil then
+    widgets.cleanup()
+    widgets = nil
+  end
+  if frsky ~= nil then
+    frsky.cleanup()
+    frsky = nil
+  end
+  collectgarbage()
+
+  crsf = loadCrossfireIfNeeded(crsf)
+  if event == nil then
+    event = EVT_DOWN_BREAK
+  end
+
+  local page = crsf.run(event)
+
+  DrawTitleBar2("CROSSFIRE settings")
+end
+
 
 function screen_x9_draw()
   local screen = menu.items[menu.currentItem]
@@ -292,11 +326,11 @@ end
 
 
 -- menu setup has to be AFTER screenX() drawing methods
-local screen_flight = {}
-screen_flight.name = "X7"
-screen_flight.height = 64
-screen_flight.drawToScreen = screen_flight_draw
-screen_flight.yScrollPosition = 0
+local screen_tel_x7 = {}
+screen_tel_x7.name = "TELEMETRY"
+screen_tel_x7.height = 64
+screen_tel_x7.drawToScreen = screen_x7_draw
+screen_tel_x7.yScrollPosition = 0
 
 local screen_vtx = {}
 screen_vtx.name = "VTX"
@@ -310,13 +344,20 @@ screen_settings.height = 240
 screen_settings.drawToScreen = screen_settings_draw
 screen_settings.yScrollPosition = 0
 
-local screen_2 = {}
-screen_2.name = "X9D"
-screen_2.height = 64
-screen_2.drawToScreen = screen_x9_draw
-screen_2.yScrollPosition = 0
+local screen_tel_x9d = {}
+screen_tel_x9d.name = "TELEMETRY"
+screen_tel_x9d.height = 64
+screen_tel_x9d.drawToScreen = screen_x9_draw
+screen_tel_x9d.yScrollPosition = 0
 
-menu.items = { screen_flight, screen_2 } -- item5 for screen no.4 should be added after item4
+local screen_crsf = {}
+screen_crsf.name = "CROSSFIRE"
+screen_crsf.height = 64
+screen_crsf.drawToScreen = crsf_screen_draw
+screen_crsf.yScrollPosition = 0
+
+
+menu.items = { screen_tel_x7, screen_crsf } -- item5 for screen no.4 should be added after item4
 
 -- ###############################################################
 -- Main draw method                      
