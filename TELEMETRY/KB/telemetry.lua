@@ -54,7 +54,7 @@ end
 --############################################################### 
 
 local telemetry = {}
-    telemetry.battsum = TelemetryValue:new('VFAS', 'Batt voltage')
+    telemetry.battsum = TelemetryValue:new('RxBt', 'Batt voltage')
     telemetry.a4      = TelemetryValue:new('A4',   'Cell voltage')
     telemetry.current = TelemetryValue:new('Curr', 'Current')
     telemetry.mah     = TelemetryValue:new('mAh',  'mAh')
@@ -68,7 +68,6 @@ local telemetry = {}
     telemetry.tmp2    = TelemetryValue:new('Tmp2', 'Tmp2')
     telemetry.tmp1    = TelemetryValue:new('Tmp1', 'Tmp1')
     telemetry.rpm     = TelemetryValue:new('RPM',  'RPM')
-    telemetry.RxBt     = TelemetryValue:new('RxBt',  'Rx voltage')
     telemetry.accx     = TelemetryValue:new('AccX',  'G (x)')
     telemetry.accy     = TelemetryValue:new('AccY',  'G (y)')
     telemetry.accz     = TelemetryValue:new('AccZ',  'G (z)')
