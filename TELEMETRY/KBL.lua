@@ -217,7 +217,8 @@ function screen_vtx_draw(event)
 
   vtx = loadScriptIfNeeded(vtx, "/vtx.luac")
 
-  local page = vtx.run(event)
+  vtx.run(event)
+  collectgarbage()
 
   DrawTitleBar2("VTX settings")
 end
