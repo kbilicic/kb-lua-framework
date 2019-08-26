@@ -263,13 +263,8 @@ function crsf_screen_draw()
   collectgarbage()
 
   crsf = loadCrossfireIfNeeded(crsf)
-  if event == nil then
-    event = EVT_DOWN_BREAK
-  end
 
   local page = crsf.run(event)
-
-  DrawTitleBar2("CROSSFIRE settings")
 end
 
 
