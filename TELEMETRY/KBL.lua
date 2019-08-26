@@ -357,7 +357,7 @@ screen_crsf.drawToScreen = crsf_screen_draw
 screen_crsf.yScrollPosition = 0
 
 
-menu.items = { screen_tel_x9d, screen_settings, screen_vtx } -- item5 for screen no.4 should be added after item4
+menu.items = { screen_tel_x9d, screen_crsf } -- item5 for screen no.4 should be added after item4
 
 -- ###############################################################
 -- Main draw method                      
