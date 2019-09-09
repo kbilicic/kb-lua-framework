@@ -65,6 +65,7 @@ local telemetry = {}
     telemetry.aspd    = TelemetryValue:new('ASpd', 'Speed')
     telemetry.gps     = TelemetryValue:new('GPS',  'GPS loc.')
     telemetry.heading = TelemetryValue:new('Hdg',  'Heading')
+    telemetry.distance = TelemetryValue:new('Dist',  'Distance')
     telemetry.tmp2    = TelemetryValue:new('Tmp2', 'Tmp2')
     telemetry.tmp1    = TelemetryValue:new('Tmp1', 'Tmp1')
     telemetry.rpm     = TelemetryValue:new('RPM',  'RPM')
@@ -156,40 +157,6 @@ end
 
 
 --###############################################################
--- functions calc current GPS Distance from home
---###############################################################
-local function CalculateGpsData()
-    if (type(telemetry.gps.value) == "table") then
-      if telemetry.gps.value["lat"] ~= nil and telemetry.gps.value["lat"] ~= 0 and data.latHome==nil and telemetry.gps.value["lon"] ~= nil and telemetry.gps.value["lon"] ~= 0 and data.lonHome==nil then
-          data.latHome = telemetry.gps.value["lat"]
-          data.lonHome = telemetry.gps.value["lon"]
-      elseif data.latHome ~= nil and data.lonHome ~= nil then
-        local sin=math.sin--locale are faster
-        local cos=math.cos
-        local radius = 6371008  -- in meters
-  
-        local dlat = math.rad(data.latHome - telemetry.gps.value["lat"])
-        local dlon = math.rad(data.lonHome - telemetry.gps.value["lon"])
-        local a = (math.sin(dlat / 2) * math.sin(dlat / 2) +
-            math.cos(math.rad(telemetry.gps.value["lat"])) * math.cos(math.rad(data.latHome)) *
-            math.sin(dlon / 2) * math.sin(dlon / 2))
-        local c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-        data.gps_hori_Distance = helper.round(radius * c)
-        sin = nil
-        cos = nil
-        radius = nil
-        dlat = nil
-        dlon = nil
-        a = nil
-        c = nil
-        collectgarbage()
-      end      
-    end
-end
-
-
-
---###############################################################
 -- Calculate battery's number of cells
 -----------------------------------------------------------------
 -- The idea is to calculate the number of cells once telemetry data comes in
@@ -263,7 +230,6 @@ local function refreshTelemetryAndRecalculate()
     RefreshTelemetryValues()
     -- calculations
     CalculateGpsLock()
-    --CalculateGpsData()
     CalculateBatteryTypeAndStatus()
     --CalculateHeadingOrientation()
     CalculateModeArmedTimer()

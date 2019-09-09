@@ -165,8 +165,9 @@ function screen_flight_draw(event)
   widgets.DrawVerticalRssi2(frsky.telemetry.rssi.value, screenWidth-28, 8, 2, 7, 17, 1.8)
   
   widgets.DrawGpsFix(30, 12, 0, frsky.data.gpslock, frsky.data.satcount)
-  widgets.DrawDistanceAndHeading(57,16, frsky.telemetry.heading.value, frsky.data.gps_hori_Distance, "m");
-  widgets.DrawAltitudeSmall(lcd.getLastRightPos() + 6,14, frsky.telemetry.alt.value, "m")
+  
+  widgets.DrawDistanceAndHeading(57,16, frsky.telemetry.heading.value, frsky.telemetry.distance.value, "m");
+  widgets.DrawAltitudeSmall(lcd.getLastRightPos() + 6,14, frsky.telemetry.galt.value, "m")
   widgets.DrawFlightModeChar(107, 49, frsky.data.mode, frsky.data.armed, 0)
   --widgets.DrawRescueMode(88,47, 0)
   --DrawFlightMode(97,54,"ACRO")
