@@ -54,7 +54,7 @@ end
 --############################################################### 
 
 local telemetry = {}
-    telemetry.battsum = TelemetryValue:new('VFAS', 'Batt voltage')
+    telemetry.vfas    = TelemetryValue:new('VFAS', 'Batt voltage')
     telemetry.a4      = TelemetryValue:new('A4',   'Cell voltage')
     telemetry.current = TelemetryValue:new('Curr', 'Current')
     telemetry.mah     = TelemetryValue:new('mAh',  'mAh')
@@ -68,13 +68,44 @@ local telemetry = {}
     telemetry.tmp2    = TelemetryValue:new('Tmp2', 'Tmp2')
     telemetry.tmp1    = TelemetryValue:new('Tmp1', 'Tmp1')
     telemetry.rpm     = TelemetryValue:new('RPM',  'RPM')
-    telemetry.RxBt     = TelemetryValue:new('RxBt',  'Rx voltage')
-    telemetry.accx     = TelemetryValue:new('AccX',  'G (x)')
-    telemetry.accy     = TelemetryValue:new('AccY',  'G (y)')
-    telemetry.accz     = TelemetryValue:new('AccZ',  'G (z)')
+    telemetry.rxbt    = TelemetryValue:new('RxBt',  'Rx voltage')
+    telemetry.accx    = TelemetryValue:new('AccX',  'G (x)')
+    telemetry.accy    = TelemetryValue:new('AccY',  'G (y)')
+    telemetry.accz    = TelemetryValue:new('AccZ',  'G (z)')
+    
+    -- ELRS specific sensors
+    telemetry.rqly    = TelemetryValue:new('RQly', 'RF Quality')
+    telemetry.tqly    = TelemetryValue:new('TQly', 'TX Quality')
+    telemetry.rsnr    = TelemetryValue:new('RSNR', 'RF SNR')
+    telemetry.rfmd    = TelemetryValue:new('RFMD', 'RF Mode')
+    telemetry.tpwr    = TelemetryValue:new('TPWR', 'TX Power')
+    telemetry.rssi1   = TelemetryValue:new('1RSS', 'RSSI 1')
+    telemetry.rssi2   = TelemetryValue:new('2RSS', 'RSSI 2')
+    telemetry.rsnr1   = TelemetryValue:new('1SNR', 'SNR 1')
+    telemetry.rsnr2   = TelemetryValue:new('2SNR', 'SNR 2')
+    telemetry.ant     = TelemetryValue:new('ANT',  'Antenna')
+    telemetry.sats    = TelemetryValue:new('Sats', 'Satellites')
+    telemetry.batP    = TelemetryValue:new('Bat%', 'Battery %')
+    
+    -- Additional common sensors for modern setups
+    telemetry.fuel    = TelemetryValue:new('Fuel', 'Fuel %')
+    telemetry.vspd    = TelemetryValue:new('VSpd', 'Vertical Speed')
+    telemetry.dist    = TelemetryValue:new('Dist', 'Distance')
+    telemetry.a1      = TelemetryValue:new('A1',   'Analog 1')
+    telemetry.a2      = TelemetryValue:new('A2',   'Analog 2')
+    telemetry.a3      = TelemetryValue:new('A3',   'Analog 3')
+    telemetry.cells   = TelemetryValue:new('Cels', 'Cells')
+    telemetry.temp1   = TelemetryValue:new('T1',   'Temperature 1')
+    telemetry.temp2   = TelemetryValue:new('T2',   'Temperature 2')
 
 
 local data = {}
+    data.receiver = ""
+    data.battery = 0
+    data.rssi = 0
+    data.rssi_text = ""
+    data.lq = 0
+    data.snr = 0;
     data.armed = false
     data.armedAtMs = nil
     data.disarmedAtMs = nil
@@ -91,6 +122,7 @@ local data = {}
     data.showBattType = false
     data.battTypeCalculated = false
     data.gps_hori_Distance = 0
+
 
 
 --###############################################################
@@ -192,19 +224,24 @@ end
 -- during the flight due to voltage swings
 --###############################################################
 local function CalculateBatteryTypeAndStatus()
+    if telemetry.vfas.value ~= nil then
+      data.battery = helper.round(telemetry.vfas.value, 2)
+    elseif telemetry.rxbt.value ~= nil then
+      data.battery = helper.round(telemetry.rxbt.value, 2)
+    end
     -- sanity check for calculated cell voltages
     if data.armed == false then
       data.battTypeCalculated = false
     end
 
     if data.battTypeCalculated == false then
-      if telemetry.battsum.value > 9.9 and telemetry.battsum.value <= 13.05 then
+      if data.battery ~= nil and data.battery > 9.9 and data.battery <= 13.05 then
         data.cellCount = 3  -- 3S
-      elseif telemetry.battsum.value > 13.05 and telemetry.battsum.value <= 17.4 then
+      elseif data.battery ~= nil and data.battery > 13.05 and data.battery <= 17.4 then
         data.cellCount = 4  -- 4S
-      elseif telemetry.battsum.value > 17.4 and telemetry.battsum.value <= 21.5 then
+      elseif data.battery ~= nil and data.battery > 17.4 and data.battery <= 21.5 then
         data.cellCount = 5  -- 5S
-      elseif telemetry.battsum.value > 21.5 and telemetry.battsum.value <= 25.8 then
+      elseif data.battery ~= nil and data.battery > 21.5 and data.battery <= 25.8 then
         data.cellCount = 6  -- 6S
       end
       -- calculate battery type only once, not during the flight while the voltage jumps around
@@ -215,10 +252,16 @@ local function CalculateBatteryTypeAndStatus()
       data.maxVoltage = data.cellCount * 4.25
       data.minVoltage = data.cellCount * 3.5
     end
-  
-    data.cellVoltage = helper.round(telemetry.battsum.value / data.cellCount, 2)
-    data.batteryPercent = 100 * (telemetry.battsum.value - data.minVoltage) / (data.maxVoltage - data.minVoltage)
-    if data.batteryPercent < 0 then data.batteryPercent = 0 end
+
+    if data.battery ~= nil and data.cellCount ~= nil and data.cellCount > 0 then
+      data.cellVoltage = helper.round(data.battery / data.cellCount, 2)
+      if telemetry.batP.value ~= nil then
+        data.batteryPercent = telemetry.batP.value
+      else
+        data.batteryPercent = 100 * (data.battery - data.minVoltage) / (data.maxVoltage - data.minVoltage)
+      end
+      if data.batteryPercent < 0 then data.batteryPercent = 0 end
+    end
   end
 
 
@@ -227,7 +270,8 @@ local function CalculateBatteryTypeAndStatus()
 -- Determine compass orientation based on heading data
 --###############################################################
 local function CalculateHeadingOrientation()
-    if telemetry.heading.value ~= nil and telemetry.heading.value < 0 or telemetry.heading.value > 360 then data.headingOrt="Err"  
+    if telemetry.heading.value ~= nil then
+      if telemetry.heading.value < 0 or telemetry.heading.value > 360 then data.headingOrt="Err"  
       elseif telemetry.heading.value <  22.5  then data.headingOrt="N"     
       elseif telemetry.heading.value <  67.5  then data.headingOrt="NE" 
       elseif telemetry.heading.value <  112.5 then data.headingOrt="E"  
@@ -237,6 +281,7 @@ local function CalculateHeadingOrientation()
       elseif telemetry.heading.value <  292.5 then data.headingOrt="W"     
       elseif telemetry.heading.value <  337.5 then data.headingOrt="NW"    
       elseif telemetry.heading.value <= 360.0 then data.headingOrt="N"    
+      end
     end
 end
 
@@ -251,8 +296,53 @@ local function DetectResetTelemetryOrFlight()
   end 
 end
 
+local function CalculateSignalData()
+    -- Standard RSSI calculation
+    if telemetry.rssi.value ~= nil then
+      data.rssi = telemetry.rssi.value
+      data.rssi_text = tostring(telemetry.rssi.value)
+    end
+    
+    -- ELRS RSSI calculation (1RSS and 2RSS are typically negative values)
+    local rss1_normalized = nil
+    local rss2_normalized = nil
+    
+    if telemetry.rssi1.value ~= nil and telemetry.rssi1.value < 0 then
+      -- Add 130 to negative RSSI and normalize to 0-100 scale
+      rss1_normalized = math.min(100, math.max(0, telemetry.rssi1.value + 130))
+      data.rssi1_text = tostring(telemetry.rssi1.value)
+    end
+    
+    if telemetry.rssi2.value ~= nil and telemetry.rssi2.value < 0 then
+      -- Add 130 to negative RSSI and normalize to 0-100 scale  
+      rss2_normalized = math.min(100, math.max(0, telemetry.rssi2.value + 130))
+      data.rssi2_text = tostring(telemetry.rssi2.value)
+    end
+    
+    -- Use the higher of the two normalized RSSI values
+    if rss1_normalized ~= nil and rss2_normalized ~= nil then
+      data.rssi = rss1_normalized > rss2_normalized and rss1_normalized or rss2_normalized
+      data.rssi_text = rss1_normalized > rss2_normalized and tostring(telemetry.rssi1.value) or tostring(telemetry.rssi2.value)
+    elseif rss1_normalized ~= nil then
+      data.rssi = rss1_normalized
+      data.rssi_text = tostring(telemetry.rssi1.value)
+    elseif rss2_normalized ~= nil then
+      data.rssi = rss2_normalized
+      data.rssi_text = tostring(telemetry.rssi2.value)
+    end
+    
+    -- Calculate link quality and SNR for ELRS
+    if telemetry.rqly.value ~= nil then
+      data.lq = telemetry.rqly.value
+    end
+    if telemetry.rsnr.value ~= nil then
+      data.snr = telemetry.rsnr.value
+    end
+end
+
 
 local function refreshTelemetryAndRecalculate()
+    CalculateSignalData()
     DetectResetTelemetryOrFlight()
     -- get new values
     RefreshTelemetryValues()
@@ -262,9 +352,14 @@ local function refreshTelemetryAndRecalculate()
     CalculateBatteryTypeAndStatus()
     --CalculateHeadingOrientation()
     CalculateModeArmedTimer()
-    if telemetry.current.value ~= nil and telemetry.battsum.value ~= nil then
-      data.power = helper.round(telemetry.current.value * telemetry.battsum.value)
+    if telemetry.current.value ~= nil and telemetry.vfas.value ~= nil then
+      data.power = helper.round(telemetry.current.value * telemetry.vfas.value)
       if data.power > data.maxpower then data.maxpower = data.power end
+    end
+    if telemetry.rqly.value ~= nil then
+      data.receiver = "ELRS"
+    else
+      data.receiver = "FrSky"
     end
     collectgarbage()
 end

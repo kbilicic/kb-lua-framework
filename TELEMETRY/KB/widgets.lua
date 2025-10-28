@@ -51,6 +51,8 @@ local function DrawBatteryLevel(battBarX, battBarY, barWidth, battBarMax, batter
     lcd.drawRectangle(battBarX, battBarY, barWidth, battBarMax + 2)
     lcd.drawFilledRectangle(battBarX + 4, battBarY - 2, barWidth-8 , 2)
     
+    if batteryPercent == nil then batteryPercent = 0 end
+    
     local batterStatusValue = nil
     if barWidth < 12 then
         batterStatusValue = nil
@@ -82,6 +84,7 @@ end
 -- example call DrawVerticalRssi2(100, 8, 2, 7, 17, 1.9)
 -- ###############################################################
 local function DrawVerticalRssi2(rssi, rssiBarX, rssiBarY, oneBarHeight, minBarWidth, maxBars, curvePower)
+    if rssi == nil then rssi = 0 end
     local bars = math.ceil(maxBars * rssi/100)
     if(rssi ~= nil and rssi < 85 ) then
       local offset = helper.round(math.pow(bars,curvePower) / 10) -- exponential offset
@@ -101,6 +104,57 @@ local function DrawVerticalRssi2(rssi, rssiBarX, rssiBarY, oneBarHeight, minBarW
         barWidth = rightX - leftX
       end
       lcd.drawFilledRectangle(leftX, rssiBarY + (oneBarHeight+1)*i, barWidth, oneBarHeight, SOLID)
+    end
+    bars = nil
+end
+
+local function DrawVerticalRssi3(rssi, rssi_text, rssiBarX, rssiBarY, oneBarHeight, minBarWidth, maxBars, curvePower)
+    if rssi == nil then rssi = 0 end
+    local bars = math.ceil(maxBars * rssi/100)
+    if(rssi ~= nil and rssi < 85 ) then
+      local offset = helper.round(math.pow(bars,curvePower) / 10) -- exponential offset
+      lcd.drawText(rssiBarX + 7, rssiBarY + (oneBarHeight + 1)*(maxBars+1-bars)-7, rssi_text .. "db", SMLSIZE) 
+    end
+    local rightX = -1
+    for i=maxBars + 1 - bars,maxBars do
+      local offset = helper.round(math.pow(maxBars-i,curvePower) / 10) -- exponential offset
+      local leftX = rssiBarX + 20 - offset
+      local barWidth = minBarWidth + offset
+      
+      if rightX < 0 then 
+        -- calcuate where is the right side of the chart
+        rightX = leftX + barWidth
+      else
+        -- fix barWidth for all other bars
+        barWidth = rightX - leftX
+      end
+      lcd.drawFilledRectangle(leftX, rssiBarY + (oneBarHeight+1)*i, barWidth, oneBarHeight, SOLID)
+    end
+    bars = nil
+end
+
+local function DrawVerticalLq(lq, lqBarX, lqBarY, oneBarHeight, minBarWidth, maxBars, curvePower)
+    if lq == nil then lq = 0 end
+    local bars = math.ceil(maxBars * lq/100)
+
+    local rightX = -1
+    for i=maxBars + 1 - bars,maxBars do
+      local offset = helper.round(math.pow(maxBars-i,curvePower) / 10) -- exponential offset
+      local leftX = lqBarX + 20 - offset
+      local barWidth = minBarWidth + offset
+      
+      if rightX < 0 then 
+        -- calcuate where is the right side of the chart
+        rightX = leftX + barWidth
+      else
+        -- fix barWidth for all other bars
+        barWidth = rightX - leftX
+      end
+      lcd.drawFilledRectangle(leftX, lqBarY + (oneBarHeight+1)*i, barWidth, oneBarHeight, SOLID)
+    end
+    if(lq ~= nil ) then
+      local offset = helper.round(math.pow(bars,curvePower) / 10) -- exponential offset
+      lcd.drawText(lqBarX + 17, lqBarY + (oneBarHeight + 1)*(maxBars+1-bars)-7, lq, SMLSIZE) 
     end
     bars = nil
 end
@@ -307,6 +361,8 @@ end
 widgets.DrawFlightMode = DrawFlightMode
 widgets.DrawBatteryLevel = DrawBatteryLevel
 widgets.DrawVerticalRssi2 = DrawVerticalRssi2
+widgets.DrawVerticalRssi3 = DrawVerticalRssi3
+widgets.DrawVerticalLq = DrawVerticalLq
 widgets.DrawDistanceAndHeading = DrawDistanceAndHeading
 widgets.DrawAltitude = DrawAltitude
 widgets.DrawAltitudeSmall = DrawAltitudeSmall

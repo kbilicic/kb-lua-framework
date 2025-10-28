@@ -2,9 +2,10 @@ KB_SCRIPT_HOME = "/SCRIPTS/TELEMETRY/KB"
 
 local helper = assert(loadScript(KB_SCRIPT_HOME.."/basics.luac"))()
 local widgets = nil-- = assert(loadScript(KB_SCRIPT_HOME.."/widgets.luac"))()
-local frsky = nil-- = assert(loadScript(KB_SCRIPT_HOME.."/telemetry.luac"))()
+local telemetry_data = nil-- = assert(loadScript(KB_SCRIPT_HOME.."/telemetry.luac"))()
 local vtx = nil
 local crsf = nil
+local settings = nil
 
 local function loadScriptIfNeeded(var, location)
   if var == nil then
@@ -52,23 +53,21 @@ menu.previousItem = 1 -- main menu previous selected item
 -- ###############################################################
 -- Page title bar
 -- ###############################################################
-local function DrawTitleBar(cellCount, battsum, cellVoltage, vtxBand, vtxChan, vtxPower, otherData)
+local function DrawTitleBar(receiver, txPower, vtxBand, vtxChan, vtxPower, otherData)
   modelname = model.getInfo()
 
   lcd.drawFilledRectangle(0, 0, screenWidth , titleBarHeight, ERASE)
   
-  if cellCount ~= nil then
-    lcd.drawText(2, 1,  cellCount .. "S", SMLSIZE)
+  if modelname ~= nil and type(modelname) == "table" then
+    lcd.drawText(2, 1, modelname["name"], SMLSIZE)
   end
-  if battsum ~= nil then
-    lcd.drawText(lcd.getLastRightPos() + 3, 1,  helper.round(battsum,1) .. "V", SMLSIZE)
-  end
+
   if vtxBand ~= nil then
     lcd.drawText(lcd.getLastRightPos() + 3, 1,  vtxBand .. vtxChan .. " > " .. vtxPower .. "mW", SMLSIZE)
   end
 
-  if modelname ~= nil and type(modelname) == "table" then
-    lcd.drawText(screenWidth-2, 1, modelname["name"], SMLSIZE + RIGHT)
+  if receiver ~= nil then
+    lcd.drawText(screenWidth-2, 1, receiver .. " " .. txPower .. "mW", SMLSIZE + RIGHT)
   end
 
   if otherData ~= nil then
@@ -168,33 +167,39 @@ function screen_x7_draw(event)
   collectgarbage()
 
   widgets = loadScriptIfNeeded(widgets, "/widgets.luac")
-  frsky = loadScriptIfNeeded(frsky, "/telemetry.luac")
+  telemetry_data = loadScriptIfNeeded(telemetry_data, "/telemetry.luac")
 
-  frsky.refreshTelemetryAndRecalculate()
-  widgets.DrawBatteryLevel(1,13,25,47, frsky.data.batteryPercent, frsky.data.cellCount, frsky.data.cellVoltage)
-  widgets.DrawVerticalRssi2(frsky.telemetry.rssi.value, screenWidth-28, 8, 2, 7, 17, 1.8)
+  telemetry_data.refreshTelemetryAndRecalculate()
+  widgets.DrawBatteryLevel(1,13,25,47, telemetry_data.data.batteryPercent, telemetry_data.data.cellCount, telemetry_data.data.cellVoltage)
   
-  widgets.DrawGpsFix(30, 12, 0, frsky.data.gpslock, frsky.data.satcount)
-  widgets.DrawDistanceAndHeading(57,16, frsky.telemetry.heading.value, frsky.data.gps_hori_Distance, "m");
-  widgets.DrawAltitudeSmall(lcd.getLastRightPos() + 6,14, frsky.telemetry.alt.value, "m")
-  widgets.DrawFlightModeChar(107, 49, frsky.data.mode, frsky.data.armed, 0)
+  -- Draw LQ (Link Quality) if available, otherwise draw RSSI
+  if telemetry_data.data.lq ~= nil and telemetry_data.data.lq > 0 then
+    widgets.DrawVerticalLq(telemetry_data.data.lq, screenWidth-28, 8, 2, 7, 17, 1.8)
+  else
+    widgets.DrawVerticalRssi3(telemetry_data.data.rssi, telemetry_data.data.rssi_text, screenWidth-28, 8, 2, 7, 17, 1.8)
+  end
+
+  widgets.DrawGpsFix(30, 12, 0, telemetry_data.data.gpslock, telemetry_data.data.satcount)
+  widgets.DrawDistanceAndHeading(57,16, telemetry_data.telemetry.heading.value, telemetry_data.data.gps_hori_Distance, "m");
+  widgets.DrawAltitudeSmall(lcd.getLastRightPos() + 6,14, telemetry_data.telemetry.alt.value, "m")
+  widgets.DrawFlightModeChar(107, 49, telemetry_data.data.mode, telemetry_data.data.armed, 0)
   --widgets.DrawRescueMode(88,47, 0)
   --DrawFlightMode(97,54,"ACRO")
   
   -- draw coordinates
-  if frsky.telemetry.gps.value ~= nil and type(frsky.telemetry.gps.value) == "table" then
-    lcd.drawText(31, 47, "Lat " .. helper.round(frsky.telemetry.gps.value["lat"], 4) .. " N ", SMLSIZE)
-    lcd.drawText(31, 55, "Lon " .. helper.round(frsky.telemetry.gps.value["lon"], 4) .. " E ", SMLSIZE)
+  if telemetry_data.telemetry.gps.value ~= nil and type(telemetry_data.telemetry.gps.value) == "table" then
+    lcd.drawText(31, 47, "Lat " .. helper.round(telemetry_data.telemetry.gps.value["lat"], 4) .. " N ", SMLSIZE)
+    lcd.drawText(31, 55, "Lon " .. helper.round(telemetry_data.telemetry.gps.value["lon"], 4) .. " E ", SMLSIZE)
     lcd.drawFilledRectangle(28,46,18,16)
   end
 
-  widgets.drawTimer(33,27, frsky.data.armedTimer, nil)
-  
-  if(frsky.telemetry.mah.value ~= nil) then
-    lcd.drawText(70, 27, frsky.telemetry.mah.value, MIDSIZE)
+  widgets.drawTimer(33,27, telemetry_data.data.armedTimer, nil)
+
+  if(telemetry_data.telemetry.mah.value ~= nil) then
+    lcd.drawText(70, 27, telemetry_data.telemetry.mah.value, MIDSIZE)
     lcd.drawText(lcd.getLastRightPos(), 32, "mAh", SMLSIZE)
   end
-  DrawTitleBar(frsky.data.cellCount, frsky.telemetry.battsum.value, frsky.data.cellVoltage, nil, nil, nil)
+  DrawTitleBar(telemetry_data.data.receiver, telemetry_data.telemetry.tpwr.value, nil, nil, nil)
 end
 
 
@@ -209,15 +214,17 @@ function screen_vtx_draw(event)
     widgets.cleanup()
     widgets = nil
   end
-  if frsky ~= nil then
-    frsky.cleanup()
-    frsky = nil
+  if telemetry_data ~= nil then
+    telemetry_data.cleanup()
+    telemetry_data = nil
   end
   collectgarbage()
 
   vtx = loadScriptIfNeeded(vtx, "/vtx.luac")
 
-  local page = vtx.run(event)
+  if vtx ~= nil then
+    local page = vtx.run(event)
+  end
 
   DrawTitleBar2("VTX settings")
 end
@@ -243,7 +250,9 @@ function screen_settings_draw(event)
   collectgarbage()
   settings = loadScriptIfNeeded(settings, "/settings.luac")
 
-  settings.drawVtxOptions(10,12,screen.yScrollPosition, event)
+  if settings ~= nil then
+    settings.drawVtxOptions(10,12,screen.yScrollPosition, event)
+  end
 
   DrawTitleBar2("VTX power levels")
 end
@@ -283,33 +292,39 @@ function screen_x9_draw()
   collectgarbage()
 
   widgets = loadScriptIfNeeded(widgets, "/widgets.luac")
-  frsky = loadScriptIfNeeded(frsky, "/telemetry.luac")
+  telemetry_data = loadScriptIfNeeded(telemetry_data, "/telemetry.luac")
 
-  frsky.refreshTelemetryAndRecalculate()
-  widgets.DrawBatteryLevel(2,13,25,47, frsky.data.batteryPercent, frsky.data.cellCount, frsky.data.cellVoltage)
-  widgets.DrawVerticalRssi2(frsky.telemetry.rssi.value, screenWidth-36, 8, 2, 15, 17, 2)
+  telemetry_data.refreshTelemetryAndRecalculate()
+  widgets.DrawBatteryLevel(2,13,25,47, telemetry_data.data.batteryPercent, telemetry_data.data.cellCount, telemetry_data.data.cellVoltage)
   
-  widgets.DrawGpsFix(31, 12, 0, frsky.data.gpslock, frsky.data.satcount)
-  widgets.DrawDistanceAndHeading(58,16, frsky.telemetry.heading.value, frsky.data.gps_hori_Distance, "m");
-  widgets.DrawAltitudeSmall(lcd.getLastRightPos() + 6,14, frsky.telemetry.alt.value, "m")
-  widgets.DrawFlightMode(170, 53, frsky.data.mode, frsky.data.armed)
+  -- Draw LQ (Link Quality) if available, otherwise draw RSSI
+  if telemetry_data.data.lq ~= nil and telemetry_data.data.lq > 0 then
+    widgets.DrawVerticalLq(telemetry_data.data.lq, screenWidth-36, 8, 2, 15, 17, 2)
+  else
+    widgets.DrawVerticalRssi3(telemetry_data.data.rssi, telemetry_data.data.rssi_text, screenWidth-36, 8, 2, 15, 17, 2)
+  end
+
+  widgets.DrawGpsFix(31, 12, 0, telemetry_data.data.gpslock, telemetry_data.data.satcount)
+  widgets.DrawDistanceAndHeading(58,16, telemetry_data.telemetry.heading.value, telemetry_data.data.gps_hori_Distance, "m");
+  widgets.DrawAltitudeSmall(lcd.getLastRightPos() + 6,14, telemetry_data.telemetry.alt.value, "m")
+  widgets.DrawFlightMode(170, 53, telemetry_data.data.mode, telemetry_data.data.armed)
   --widgets.DrawRescueMode(88,47, 0)
   --DrawFlightMode(97,54,"ACRO")
   
   -- draw coordinates
-  if frsky.telemetry.gps.value ~= nil and type(frsky.telemetry.gps.value) == "table" then
-    lcd.drawText(33, 27, "Lat " .. helper.round(frsky.telemetry.gps.value["lat"], 4) .. " N ", SMLSIZE)
-    lcd.drawText(33, 35, "Lon " .. helper.round(frsky.telemetry.gps.value["lon"], 4) .. " E ", SMLSIZE)
+  if telemetry_data.telemetry.gps.value ~= nil and type(telemetry_data.telemetry.gps.value) == "table" then
+    lcd.drawText(33, 27, "Lat " .. helper.round(telemetry_data.telemetry.gps.value["lat"], 4) .. " N ", SMLSIZE)
+    lcd.drawText(33, 35, "Lon " .. helper.round(telemetry_data.telemetry.gps.value["lon"], 4) .. " E ", SMLSIZE)
     lcd.drawFilledRectangle(30,26,18,16)
   end
 
-  widgets.drawTimer(120,46, frsky.data.armedTimer, nil, DBLSIZE)
-  
-  if(frsky.telemetry.mah.value ~= nil) then
-    lcd.drawText(31, 50, frsky.telemetry.mah.value, MIDSIZE)
+  widgets.drawTimer(120,46, telemetry_data.data.armedTimer, nil, DBLSIZE)
+
+  if(telemetry_data.telemetry.mah.value ~= nil) then
+    lcd.drawText(31, 50, telemetry_data.telemetry.mah.value, MIDSIZE)
     lcd.drawText(lcd.getLastRightPos(), 55, "mAh", SMLSIZE)
   end
-  DrawTitleBar(frsky.data.cellCount, frsky.telemetry.battsum.value, frsky.data.cellVoltage, nil, nil, nil)
+  DrawTitleBar(telemetry_data.data.cellCount, telemetry_data.telemetry.battsum.value, telemetry_data.data.cellVoltage, telemetry_data.telemetry.tpwr.value, nil, nil, nil)
 end
 
 

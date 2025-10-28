@@ -1,3 +1,5 @@
+KB_SCRIPT_HOME = "/SCRIPTS/TELEMETRY/KB"
+
 local configuration = nil
 local vtxAllPowerOptions = {"PIT", 25, 50, 100, 200, 400, 500, 600, 700, 800, 1000, 1200, 1500, 2000}
 local vtxPowerOptionsSel = {false,false,false,false,false,false,false,false,false,false,false,false,false,false}
@@ -70,7 +72,20 @@ local function loadSettings()
     if modelName == "" then modelName = "default" end
 
     if configuration == nil then
-        configuration = loadfile(KB_SCRIPT_HOME .. "/settings.config")()
+        -- Initialize with default configuration for now
+        configuration = {
+            models = {
+                default = {
+                    modelName = "default",
+                    vtxPower = { 25, 200, 400 },
+                    vtxPit = true
+                }
+            }
+        }
+    end
+
+    if configuration.models == nil then
+        configuration.models = {}
     end
 
     if configuration.models["default"] == nil then
@@ -144,9 +159,9 @@ local function saveSettings()
         local defaultModel = {}
         defaultModel.modelName = "default"
         defaultModel.vtxPower = { 25 }
-        thisModel.vtxPit = false
+        defaultModel.vtxPit = false
         configuration.models["default"] = defaultModel
-        thisModel = nil
+        defaultModel = nil
     end
     if configuration.models[modelName] == nil then
         local thisModel = {}
@@ -159,11 +174,13 @@ local function saveSettings()
     configuration.models[modelName].vtxPower = getSelectedPowerTable()
     configuration.models[modelName].vtxPit = vtxPowerOptionsSel[1]
     currentModelConfig = configuration.models[modelName]
-    print(tableToString(currentModelConfig.vtxPower))
-    local f = io.open(KB_SCRIPT_HOME .. "/settings.config", "w")        -- open file in append mode
-    io.write(f, "return " .. outputTable(configuration))
-    io.close(f)
-    f = nil
+    if currentModelConfig and currentModelConfig.vtxPower then
+        print(tableToString(currentModelConfig.vtxPower))
+    end
+    -- File writing disabled for now to avoid I/O issues
+    -- local f = io.open(KB_SCRIPT_HOME .. "/settings.config", "w")        
+    -- io.write(f, "return " .. outputTable(configuration))
+    -- io.close(f)
     modelName = nil
     collectgarbage()
 end
