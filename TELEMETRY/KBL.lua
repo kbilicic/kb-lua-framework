@@ -66,7 +66,7 @@ local function DrawTitleBar(receiver, txPower, vtxBand, vtxChan, vtxPower, other
     lcd.drawText(lcd.getLastRightPos() + 3, 1,  vtxBand .. vtxChan .. " > " .. vtxPower .. "mW", SMLSIZE)
   end
 
-  if receiver ~= nil then
+  if receiver ~= nil and txPower ~= nil then
     lcd.drawText(screenWidth-2, 1, receiver .. " " .. txPower .. "mW", SMLSIZE + RIGHT)
   end
 

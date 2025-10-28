@@ -139,14 +139,18 @@ end
 -- calculate gps lock and satelite count
 --###############################################################
 local function CalculateGpsLock() 
-    if telemetry.tmp2.value ~= nil and telemetry.tmp2.value > 1000 then
-      data.satcount = telemetry.tmp2.value % 1000
-      data.gpslock = helper.round((telemetry.tmp2.value - data.satcount) / 1000)
-    elseif telemetry.tmp2.value ~= nil and telemetry.tmp2.value > 0 then
-      data.satcount = telemetry.tmp2.value
-    else
-      data.satcount = 0
-      data.gpslock = 0
+    if telemetry.sats.value ~= nil then
+      data.satcount = telemetry.sats.value
+    else 
+      if telemetry.tmp2.value ~= nil and telemetry.tmp2.value > 1000 then
+        data.satcount = telemetry.tmp2.value % 1000
+        data.gpslock = helper.round((telemetry.tmp2.value - data.satcount) / 1000)
+      elseif telemetry.tmp2.value ~= nil and telemetry.tmp2.value > 0 then
+        data.satcount = telemetry.tmp2.value
+      else
+        data.satcount = 0
+        data.gpslock = 0
+      end
     end
 end
 
