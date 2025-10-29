@@ -1,8 +1,9 @@
 KB_SCRIPT_HOME = "/SCRIPTS/TELEMETRY/KB"
 
-local helper = assert(loadScript(KB_SCRIPT_HOME.."/basics.luac"))()
-local widgets = nil-- = assert(loadScript(KB_SCRIPT_HOME.."/widgets.luac"))()
-local telemetry_data = nil-- = assert(loadScript(KB_SCRIPT_HOME.."/telemetry.luac"))()
+-- DEFER ALL MODULE LOADING to reduce startup memory
+local helper = nil
+local widgets = nil
+local telemetry_data = nil
 local vtx = nil
 local crsf = nil
 local settings = nil
@@ -116,35 +117,18 @@ end
 -- which represents selected item index
 --###############################################################
 local function DrawMainMenu(items, currentItem)
-  local optionCount = 1
-  if type(items) == "table" then
-    optionCount = #items
-  else
-    return 
-  end
-
-  local rowCount = math.ceil(optionCount / 3)
-  local itemWidth = math.ceil(screenWidth / math.ceil(optionCount / rowCount))
-  local itemHeight = math.floor(lcdHeight / rowCount)
-  local index = 1
-  for i=1,rowCount do
-    for j=1,math.ceil(optionCount/rowCount) do
-      if index <= optionCount then
-        lcd.drawText((j-1)*itemWidth + 3, (i-1)*itemHeight + itemHeight / 2 - 3, items[index].name, SMLSIZE)
-        if index == currentItem then
-          lcd.drawFilledRectangle((j-1)*itemWidth,(i-1)*itemHeight,itemWidth,itemHeight, GREY_DEFAULT)
-        else
-          lcd.drawRectangle((j-1)*itemWidth,(i-1)*itemHeight,itemWidth,itemHeight)
-        end
-      end
-      index = index + 1
+  -- SIMPLIFIED: Single column menu to save memory
+  if type(items) ~= "table" then return end
+  
+  local itemHeight = math.floor(lcdHeight / #items)
+  for i=1, #items do
+    lcd.drawText(3, (i-1)*itemHeight + itemHeight / 2 - 3, items[i].name, SMLSIZE)
+    if i == currentItem then
+      lcd.drawFilledRectangle(0, (i-1)*itemHeight, screenWidth, itemHeight, GREY_DEFAULT)
+    else
+      lcd.drawRectangle(0, (i-1)*itemHeight, screenWidth, itemHeight)
     end
   end
-
-  rowCount = nil
-  itemWidth = nil
-  itemHeight = nil
-  index = nil
 end
 
 
@@ -166,6 +150,7 @@ function screen_x7_draw(event)
   end
   collectgarbage()
 
+  helper = loadScriptIfNeeded(helper, "/basics.luac")
   widgets = loadScriptIfNeeded(widgets, "/widgets.luac")
   telemetry_data = loadScriptIfNeeded(telemetry_data, "/telemetry.luac")
 
@@ -188,12 +173,12 @@ function screen_x7_draw(event)
   
   -- draw coordinates
   if telemetry_data.telemetry.gps.value ~= nil and type(telemetry_data.telemetry.gps.value) == "table" then
-    lcd.drawText(31, 47, "Lat " .. helper.round(telemetry_data.telemetry.gps.value["lat"], 4) .. " N ", SMLSIZE)
-    lcd.drawText(31, 55, "Lon " .. helper.round(telemetry_data.telemetry.gps.value["lon"], 4) .. " E ", SMLSIZE)
-    lcd.drawFilledRectangle(28,46,18,16)
+    lcd.drawText(31, 27, "Lat " .. helper.round(telemetry_data.telemetry.gps.value["lat"], 4) .. " N ", SMLSIZE)
+    lcd.drawText(31, 35, "Lon " .. helper.round(telemetry_data.telemetry.gps.value["lon"], 4) .. " E ", SMLSIZE)
+    lcd.drawFilledRectangle(28,26,18,16)
   end
 
-  widgets.drawTimer(33,27, telemetry_data.data.armedTimer, nil)
+  widgets.drawTimer(33,48, telemetry_data.data.armedTimer, nil)
 
   if(telemetry_data.telemetry.mah.value ~= nil) then
     lcd.drawText(70, 27, telemetry_data.telemetry.mah.value, MIDSIZE)
@@ -291,6 +276,7 @@ function screen_x9_draw()
   end
   collectgarbage()
 
+  helper = loadScriptIfNeeded(helper, "/basics.luac")
   widgets = loadScriptIfNeeded(widgets, "/widgets.luac")
   telemetry_data = loadScriptIfNeeded(telemetry_data, "/telemetry.luac")
 
@@ -347,17 +333,17 @@ screen_tel_x7.height = 64
 screen_tel_x7.drawToScreen = screen_x7_draw
 screen_tel_x7.yScrollPosition = 0
 
-local screen_vtx = {}
-screen_vtx.name = "VTX"
-screen_vtx.height = 64
-screen_vtx.drawToScreen = screen_vtx_draw
-screen_vtx.yScrollPosition = 0
+-- local screen_vtx = {}
+-- screen_vtx.name = "VTX"
+-- screen_vtx.height = 64
+-- screen_vtx.drawToScreen = screen_vtx_draw
+-- screen_vtx.yScrollPosition = 0
 
-local screen_settings = {}
-screen_settings.name = "Settings"
-screen_settings.height = 240
-screen_settings.drawToScreen = screen_settings_draw
-screen_settings.yScrollPosition = 0
+-- local screen_settings = {}
+-- screen_settings.name = "Settings"
+-- screen_settings.height = 240
+-- screen_settings.drawToScreen = screen_settings_draw
+-- screen_settings.yScrollPosition = 0
 
 local screen_tel_x9d = {}
 screen_tel_x9d.name = "TELEMETRY"
@@ -365,14 +351,14 @@ screen_tel_x9d.height = 64
 screen_tel_x9d.drawToScreen = screen_x9_draw
 screen_tel_x9d.yScrollPosition = 0
 
-local screen_crsf = {}
-screen_crsf.name = "CROSSFIRE"
-screen_crsf.height = 64
-screen_crsf.drawToScreen = crsf_screen_draw
-screen_crsf.yScrollPosition = 0
+-- local screen_crsf = {}
+-- screen_crsf.name = "CROSSFIRE"
+-- screen_crsf.height = 64
+-- screen_crsf.drawToScreen = crsf_screen_draw
+-- screen_crsf.yScrollPosition = 0
 
 
-menu.items = { screen_tel_x7, screen_settings, screen_vtx } -- item5 for screen no.4 should be added after item4
+menu.items = { screen_tel_x7 } -- MINIMAL: Only telemetry screen to save memory
 
 -- ###############################################################
 -- Main draw method                      

@@ -26,10 +26,10 @@ function TelemetryValue:refreshValue()
     self.value = nil
   end
 end
-
-function TelemetryValue:new(name, label, calc)
+--function TelemetryValue:new(name, label, calc)
+function TelemetryValue:new(name, label)
   o = {}   -- create object if user does not provide one
-  o.calculated = false or calc
+  --o.calculated = false or calc
   setmetatable(o, self)
   self.__index = self
   o.name = name
@@ -60,43 +60,43 @@ local telemetry = {}
     telemetry.mah     = TelemetryValue:new('mAh',  'mAh')
     telemetry.rssi    = TelemetryValue:new('RSSI', 'RSSI')
     telemetry.galt    = TelemetryValue:new('GAlt', 'GPS altitude')
-    telemetry.alt     = TelemetryValue:new('Alt',  'Altitude')
+    --telemetry.alt     = TelemetryValue:new('Alt',  'Altitude')
     telemetry.gspd    = TelemetryValue:new('GSpd', 'GPS speed')
-    telemetry.aspd    = TelemetryValue:new('ASpd', 'Speed')
+    --telemetry.aspd    = TelemetryValue:new('ASpd', 'Speed')
     telemetry.gps     = TelemetryValue:new('GPS',  'GPS loc.')
     telemetry.heading = TelemetryValue:new('Hdg',  'Heading')
-    telemetry.tmp2    = TelemetryValue:new('Tmp2', 'Tmp2')
-    telemetry.tmp1    = TelemetryValue:new('Tmp1', 'Tmp1')
-    telemetry.rpm     = TelemetryValue:new('RPM',  'RPM')
+    --telemetry.tmp2    = TelemetryValue:new('Tmp2', 'Tmp2')
+    --telemetry.tmp1    = TelemetryValue:new('Tmp1', 'Tmp1')
+    --telemetry.rpm     = TelemetryValue:new('RPM',  'RPM')
     telemetry.rxbt    = TelemetryValue:new('RxBt',  'Rx voltage')
-    telemetry.accx    = TelemetryValue:new('AccX',  'G (x)')
-    telemetry.accy    = TelemetryValue:new('AccY',  'G (y)')
-    telemetry.accz    = TelemetryValue:new('AccZ',  'G (z)')
+    --telemetry.accx    = TelemetryValue:new('AccX',  'G (x)')
+    --telemetry.accy    = TelemetryValue:new('AccY',  'G (y)')
+    --telemetry.accz    = TelemetryValue:new('AccZ',  'G (z)')
     
     -- ELRS specific sensors
     telemetry.rqly    = TelemetryValue:new('RQly', 'RF Quality')
-    telemetry.tqly    = TelemetryValue:new('TQly', 'TX Quality')
+    --telemetry.tqly    = TelemetryValue:new('TQly', 'TX Quality')
     telemetry.rsnr    = TelemetryValue:new('RSNR', 'RF SNR')
-    telemetry.rfmd    = TelemetryValue:new('RFMD', 'RF Mode')
+    --telemetry.rfmd    = TelemetryValue:new('RFMD', 'RF Mode')
     telemetry.tpwr    = TelemetryValue:new('TPWR', 'TX Power')
     telemetry.rssi1   = TelemetryValue:new('1RSS', 'RSSI 1')
     telemetry.rssi2   = TelemetryValue:new('2RSS', 'RSSI 2')
-    telemetry.rsnr1   = TelemetryValue:new('1SNR', 'SNR 1')
-    telemetry.rsnr2   = TelemetryValue:new('2SNR', 'SNR 2')
-    telemetry.ant     = TelemetryValue:new('ANT',  'Antenna')
+    --telemetry.rsnr1   = TelemetryValue:new('1SNR', 'SNR 1')
+    --telemetry.rsnr2   = TelemetryValue:new('2SNR', 'SNR 2')
+    --telemetry.ant     = TelemetryValue:new('ANT',  'Antenna')
     telemetry.sats    = TelemetryValue:new('Sats', 'Satellites')
     telemetry.batP    = TelemetryValue:new('Bat%', 'Battery %')
     
     -- Additional common sensors for modern setups
     telemetry.fuel    = TelemetryValue:new('Fuel', 'Fuel %')
-    telemetry.vspd    = TelemetryValue:new('VSpd', 'Vertical Speed')
+    --telemetry.vspd    = TelemetryValue:new('VSpd', 'Vertical Speed')
     telemetry.dist    = TelemetryValue:new('Dist', 'Distance')
-    telemetry.a1      = TelemetryValue:new('A1',   'Analog 1')
-    telemetry.a2      = TelemetryValue:new('A2',   'Analog 2')
-    telemetry.a3      = TelemetryValue:new('A3',   'Analog 3')
-    telemetry.cells   = TelemetryValue:new('Cels', 'Cells')
-    telemetry.temp1   = TelemetryValue:new('T1',   'Temperature 1')
-    telemetry.temp2   = TelemetryValue:new('T2',   'Temperature 2')
+    --telemetry.a1      = TelemetryValue:new('A1',   'Analog 1')
+    --telemetry.a2      = TelemetryValue:new('A2',   'Analog 2')
+    --telemetry.a3      = TelemetryValue:new('A3',   'Analog 3')
+    --telemetry.cells   = TelemetryValue:new('Cels', 'Cells')
+    --telemetry.temp1   = TelemetryValue:new('T1',   'Temperature 1')
+    --telemetry.temp2   = TelemetryValue:new('T2',   'Temperature 2')
 
 
 local data = {}
@@ -190,30 +190,14 @@ end
 -- functions calc current GPS Distance from home
 --###############################################################
 local function CalculateGpsData()
+    if telemetry.Dist.value ~= nil then
+      data.gps_hori_Distance = telemetry.Dist.value
+    end
+
     if (type(telemetry.gps.value) == "table") then
       if telemetry.gps.value["lat"] ~= nil and telemetry.gps.value["lat"] ~= 0 and data.latHome==nil and telemetry.gps.value["lon"] ~= nil and telemetry.gps.value["lon"] ~= 0 and data.lonHome==nil then
           data.latHome = telemetry.gps.value["lat"]
           data.lonHome = telemetry.gps.value["lon"]
-      elseif data.latHome ~= nil and data.lonHome ~= nil then
-        local sin=math.sin--locale are faster
-        local cos=math.cos
-        local radius = 6371008  -- in meters
-  
-        local dlat = math.rad(data.latHome - telemetry.gps.value["lat"])
-        local dlon = math.rad(data.lonHome - telemetry.gps.value["lon"])
-        local a = (math.sin(dlat / 2) * math.sin(dlat / 2) +
-            math.cos(math.rad(telemetry.gps.value["lat"])) * math.cos(math.rad(data.latHome)) *
-            math.sin(dlon / 2) * math.sin(dlon / 2))
-        local c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-        data.gps_hori_Distance = helper.round(radius * c)
-        sin = nil
-        cos = nil
-        radius = nil
-        dlat = nil
-        dlon = nil
-        a = nil
-        c = nil
-        collectgarbage()
       end      
     end
 end

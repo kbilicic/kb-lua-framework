@@ -11,7 +11,6 @@ local function round(num, idp)
   end
 
   temp = nil
-  collectgarbage()
 end
 
 --###############################################################
